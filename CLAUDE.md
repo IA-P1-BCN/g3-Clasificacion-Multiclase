@@ -26,6 +26,7 @@ Work is done in Jupyter (`ipykernel` is installed); open the notebooks with the 
 ## Conventions
 
 - **Group project**, so use feature branches and clean commits (the brief grades branch management and commit quality). Check `git log` for the existing commit style before committing.
+- **Branch flow:** `main` is the stable branch and `dev` is the integration branch. Create a feature branch from `dev` (e.g. `feat/<topic>`, `fix/<topic>`), and open its PR **into `dev`**, never into `main`. `main` only receives `dev` once the group agrees. Commits use Conventional Commits prefixes (`feat:`, `fix:`, `docs:`, `chore:`…) with Spanish descriptions, since the existing history has no convention.
 - **Language: Spanish** for everything written into the project: notebook markdown and comments, docs, reports, app UI strings, commit messages. 
 
 ## Workflow guide ("Guía de un proyecto de clasificación en ML")
