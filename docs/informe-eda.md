@@ -4,7 +4,7 @@
 
 ## Resumen
 
-Analizamos 515 parcelas de ensayo de eucalipto (el 70 % de las 736 disponibles) para preparar un modelo que prediga su **utilidad para la conservación del suelo**, en cinco niveles: **none, low, average, good y best**. Encontramos tres cosas que condicionan el modelo: las parcelas sin medidas son siempre de clase **none**, el **sitio** donde se plantó marca mucho la clase, y el **vigor** del árbol es la medida que más se parece a la clase. Además hay un error evidente en un dato de diámetro. Recomendamos **quitar del modelado las parcelas sin medidas** y tratar los demás puntos antes de entrenar, para comparar los modelos de forma justa.
+Analizamos 515 parcelas de ensayo de eucalipto (el 70 % de las 736 disponibles) para preparar un modelo que prediga su **utilidad para la conservación del suelo**, en cinco niveles: **none, low, average, good y best**. Encontramos tres cosas que condicionan el modelo: las parcelas sin medidas son siempre de clase **none**, el **sitio** donde se plantó marca mucho la clase, y el **vigor** del árbol es la medida que más se parece a la clase. Además hay un error evidente en un dato de diámetro. Decidimos **quitar del entrenamiento las parcelas sin medidas** y tratar los demás puntos antes de entrenar, para comparar los modelos de forma justa.
 
 ## Contexto y datos
 
@@ -53,7 +53,7 @@ De las 191 parcelas con vigor mayor que 3, 165 (86 %) son good o best; de las 10
 
 ## Qué significa y qué recomendamos
 
-- **Quitar del modelado las parcelas sin medidas** (hallazgo 1), con la misma regla en entrenamiento, validación y prueba, para no premiar al modelo por «adivinar» la ausencia. El modelo solo valdría para parcelas con medidas: una parcela sin medidas se trataría fuera del modelo con una regla simple, y habría que decirlo en la aplicación. Como cada integrante prepara sus datos por su cuenta, esta regla debe acordarse entre todos; si no, los modelos no son comparables.
+- **Quitar del entrenamiento las parcelas sin medidas** (hallazgo 1), después de apartar validación y prueba. El equipo decidió entrenar sin ellas y mantenerlas en validación y prueba: una parcela sin medidas se trata fuera del modelo con una regla simple (se predice `none`) y las métricas se informan con y sin ellas, para no premiar al modelo por «adivinar» la ausencia. Habrá que decirlo en el informe técnico y en la aplicación.
 - **Validar teniendo en cuenta el sitio** (hallazgo 2): acordar si la validación agrupa las parcelas por sitio, y reducir las siete columnas repetidas.
 - **Confirmar que el vigor y las demás medidas existirán al predecir** (hallazgo 3); si no, el modelo no será utilizable.
 - **Corregir o descartar el diámetro erróneo** y revisar los datos sin valor (hallazgo 4).

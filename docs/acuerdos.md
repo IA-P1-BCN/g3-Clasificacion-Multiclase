@@ -3,11 +3,11 @@
 Reglas comunes para que los cuatro modelos sean comparables. Si alguna cambia, se actualiza aquí y en el notebook afectado.
 
 ## Datos (`00_general`)
-La limpieza se hace una sola vez, **antes del split**, igual para todos:
-1. Se quitan las **parcelas sin medidas** (sin `Surv`, `Vig`, `Ins_res`, `Stem_Fm`, `Crown_Fm` ni `Brnch_Fm`; son los sitios Mor y Wen, todas de clase `none`). Ver ADR-0001.
-2. El diámetro erróneo (`DBH` = 42 085 cm) pasa a NaN y lo imputa el pipeline de cada modelo.
-3. Se deja `Abbrev` (el sitio) y se quitan las columnas que solo repiten el sitio: `Locality`, `Map_Ref`, `Latitude`, `Altitude`, `Rainfall`, `Frosts`, `Year`.
-4. Split estratificado 70/15/15 con `SEMILLA = 42`.
+La limpieza se hace una sola vez, igual para todos:
+1. Split estratificado 70/15/15 con `SEMILLA = 42`, sobre las 736 filas.
+2. Solo en **train** se quitan las **parcelas sin medidas** (sin `Surv`, `Vig`, `Ins_res`, `Stem_Fm`, `Crown_Fm` ni `Brnch_Fm`; son los sitios Mor y Wen, todas de clase `none`). Validación y test las conservan. Ver ADR-0001.
+3. El diámetro erróneo (`DBH` = 42 085 cm) pasa a NaN en los tres conjuntos y lo imputa el pipeline de cada modelo.
+4. Se deja `Abbrev` (el sitio) y se quitan las columnas que solo repiten el sitio: `Locality`, `Map_Ref`, `Latitude`, `Altitude`, `Rainfall`, `Frosts`, `Year`.
 5. Se guardan `data/train.csv`, `data/val.csv` y `data/test.csv` (se commitean). Los notebooks de algoritmo solo leen esos CSV.
 
 No hay un `src/` compartido: el código de la limpieza vive únicamente en `00_general`.
@@ -18,6 +18,7 @@ No hay un `src/` compartido: el código de la limpieza vive únicamente en `00_g
 - **Overfitting**: diferencia de **F1 macro** entre train y validación, por debajo de 5 puntos.
 - Plantilla común de secciones: preprocesado, CV, métricas en validación (accuracy, precision/recall/F1 por clase, matriz de confusión), gap de overfitting, feature importance (nativa en árbol y regresión logística, `permutation_importance` en SVM y KNN) y análisis de errores.
 - El preprocesado lo hace cada persona dentro de su `Pipeline` (ajustado solo con train).
+- Las parcelas sin medidas de validación y test **no pasan por el modelo**: se predicen `none` por regla fija antes de calcular las métricas. Las métricas se informan sobre todo el conjunto y también solo sobre las parcelas con medidas.
 
 ## Contrato de modelos
 - Cada notebook guarda el pipeline completo (preprocesado + modelo) con `joblib` en `models/<algoritmo>.joblib` (se commitea).
