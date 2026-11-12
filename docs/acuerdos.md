@@ -2,15 +2,15 @@
 
 Reglas comunes para que los cuatro modelos sean comparables. Si alguna cambia, se actualiza aquí y en el notebook afectado.
 
-## Datos (`01_eda`)
-Al final del EDA, la limpieza se aplica una sola vez y con la misma regla a train, validación y test:
+## Datos (`00_general`)
+La limpieza se hace una sola vez, **antes del split**, igual para todos:
 1. Se quitan las **parcelas sin medidas** (sin `Surv`, `Vig`, `Ins_res`, `Stem_Fm`, `Crown_Fm` ni `Brnch_Fm`; son los sitios Mor y Wen, todas de clase `none`). Ver ADR-0001.
 2. El diámetro erróneo (`DBH` = 42 085 cm) pasa a NaN y lo imputa el pipeline de cada modelo.
 3. Se deja `Abbrev` (el sitio) y se quitan las columnas que solo repiten el sitio: `Locality`, `Map_Ref`, `Latitude`, `Altitude`, `Rainfall`, `Frosts`, `Year`.
-4. El split es el del principio del EDA: estratificado 70/15/15 con `SEMILLA = 42`.
+4. Split estratificado 70/15/15 con `SEMILLA = 42`.
 5. Se guardan `data/train.csv`, `data/val.csv` y `data/test.csv` (se commitean). Los notebooks de algoritmo solo leen esos CSV.
 
-No hay un `src/` compartido: el código de la limpieza vive únicamente en `01_eda`.
+No hay un `src/` compartido: el código de la limpieza vive únicamente en `00_general`.
 
 ## Evaluación (notebooks `02`–`05`)
 - Validación cruzada común: `StratifiedKFold(n_splits=5, shuffle=True, random_state=42)` sobre train.
