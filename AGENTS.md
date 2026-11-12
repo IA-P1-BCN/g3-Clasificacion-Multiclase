@@ -6,7 +6,7 @@ Referencias: la guía sugerida `docs/workshop_clasificacion/WORKSHOP.md` (con su
 Las reglas de ML comunes (datos, evaluación, contrato de modelos, app) están en `docs/acuerdos.md`: léelas antes de tocar un notebook o la app.
 
 ## Acuerdos
-- Notebooks, en orden de merge: `00_general` (problema, limpieza común y split), `01_eda`, `02_regresion_logistica`, `03_arbol_decision`, `04_svm`, `05_knn`, `06_conclusiones`.
+- Notebooks, en orden de merge: `01_eda` (problema, split, EDA, limpieza común y CSV), `02_regresion_logistica`, `03_arbol_decision`, `04_svm`, `05_knn`, `06_conclusiones`.
 - Una persona por algoritmo; `06_conclusiones` lo hacemos entre todos.
 - `nbmerge` los junta en `final.ipynb`.
 - La app (Streamlit) vive en `app/` y sus tests en `tests/`.
