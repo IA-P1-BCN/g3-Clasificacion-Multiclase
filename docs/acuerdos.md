@@ -2,7 +2,7 @@
 
 Reglas comunes para que los cuatro modelos sean comparables. Si alguna cambia, se actualiza aquí y en el notebook afectado.
 
-## Datos (`00_general`)
+## Datos (`01_eda`, sección 10)
 La limpieza se hace una sola vez, igual para todos:
 1. Split estratificado 70/15/15 con `SEMILLA = 42`, sobre las 736 filas.
 2. Solo en **train** se quitan las **parcelas sin medidas** (sin `Surv`, `Vig`, `Ins_res`, `Stem_Fm`, `Crown_Fm` ni `Brnch_Fm`; son los sitios Mor y Wen, todas de clase `none`). Validación y test las conservan. Ver ADR-0001.
@@ -10,7 +10,7 @@ La limpieza se hace una sola vez, igual para todos:
 4. Se deja `Abbrev` (el sitio) y se quitan las columnas que solo repiten el sitio: `Locality`, `Map_Ref`, `Latitude`, `Altitude`, `Rainfall`, `Frosts`, `Year`.
 5. Se guardan `data/train.csv`, `data/val.csv` y `data/test.csv` (se commitean). Los notebooks de algoritmo solo leen esos CSV.
 
-No hay un `src/` compartido: el código de la limpieza vive únicamente en `00_general`.
+No hay un `src/` compartido: el código de la limpieza vive únicamente en la sección 10 de `01_eda`.
 
 ## Evaluación (notebooks `02`–`05`)
 - Validación cruzada común: `StratifiedKFold(n_splits=5, shuffle=True, random_state=42)` sobre train.
