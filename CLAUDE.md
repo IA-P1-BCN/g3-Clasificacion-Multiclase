@@ -13,13 +13,21 @@ Early-stage group bootcamp project (IA School, Data Science P2): multiclass clas
 
 ## Environment
 
-Windows, with a local virtualenv at `.venv/` (gitignored). Setup:
+**Mixed platforms:** one team member is on Windows and three are on macOS. Code, notebooks and docs must work on both, so:
+- Never hardcode Windows paths (`C:\...`, backslashes) or macOS-only paths; use relative paths or `pathlib`.
+- Don't rely on Windows-only or macOS-only tools or shell syntax in anything the team has to run; give both variants in docs.
+- Open and write text files with `encoding="utf-8"` explicitly (Windows defaults to cp1252).
+- Line endings: Git warns about LF/CRLF on Windows; keep files LF and don't commit mass line-ending changes.
+- Keep `requirements.txt` installable on both (pure-pip packages, versions that have wheels for macOS, including Apple Silicon).
+
+Each person uses a local virtualenv at `.venv/` (gitignored). Setup:
 
 ```
 python -m venv .venv
-.venv\Scripts\activate
 pip install -r requirements.txt
 ```
+
+Activate it with `.venv\Scripts\activate` on Windows, or `source .venv/bin/activate` on macOS.
 
 Work is done in Jupyter (`ipykernel` is installed); open the notebooks with the `.venv` kernel.
 
