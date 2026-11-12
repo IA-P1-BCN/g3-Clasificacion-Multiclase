@@ -14,7 +14,7 @@ Las reglas de ML comunes (datos, evaluación, contrato de modelos, app) están e
 ## Agent skills
 
 ### Issue tracker
-GitHub Issues en un Projects board: milestones = épicas, issues = historias, sub-issues = tareas técnicas. Ver `docs/agents/issue-tracker.md`.
+GitHub Issues en un Projects board: milestones = niveles de entrega del enunciado (de momento solo `Nivel Esencial`), issues = historias con criterios de aceptación para el Scrum Master, sub-issues = tareas técnicas. Ver `docs/agents/issue-tracker.md`.
 
 ### Domain docs
 Single-context: `GLOSSARY.md` + `docs/adr/` en la raíz. Ver `docs/agents/domain.md`.

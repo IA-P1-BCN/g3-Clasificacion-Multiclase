@@ -4,9 +4,9 @@ Issues and specs for this repo live as GitHub issues, organised on a GitHub Proj
 
 ## Work breakdown hierarchy
 
-- **Epic** → a **milestone**. Create with `gh api --method POST repos/<owner>/<repo>/milestones -f title="..."`; list with `gh api repos/<owner>/<repo>/milestones`. Attach a story with `gh issue edit <n> --milestone <m>`.
-- **Story** → a top-level **issue**, added to the Projects board. This is the unit skills publish to and fetch from.
-- **Scrum / tech task** → a **sub-issue** of its story: `gh issue create --parent <story> ...`, or `gh issue edit <story> --add-sub-issue <task>` afterwards (`gh` 2.94+). Older `gh`: `gh api --method POST repos/<owner>/<repo>/issues/<story>/sub_issues -F sub_issue_id=<task-db-id>` (database id, as in **Blocking** below). Where sub-issues aren't available, put `Part of #<story>` at the top of the task body.
+- **Epic** → a **milestone**, one per delivery level of `docs/business/EXERCISE_SPECS.md` (`Nivel Esencial`, `Nivel Medio`…). Only `Nivel Esencial` exists for now; create the next level only when the team commits to it. Create with `gh api --method POST repos/<owner>/<repo>/milestones -f title="..."`; list with `gh api repos/<owner>/<repo>/milestones`. Attach a story with `gh issue edit <n> --milestone <m>`.
+- **Story** → a top-level **issue**, added to the Projects board. This is the unit skills publish to and fetch from. Body format (Spanish): `## Historia` with **Como** <rol> **quiero** <qué> **para** <para qué>, then `## Criterios de aceptación (los prueba el Scrum Master)` as a checklist of **Dado / Cuando / Entonces** steps the Scrum Master can verify by hand, as a user (run a notebook, open the app, read the report). No story for delivering the repo link (it is uploaded to Moodle).
+- **Scrum / tech task** → a **sub-issue** of its story: `gh issue create --parent <story> ...`, or `gh issue edit <story> --add-sub-issue <task>` afterwards (`gh` 2.94+). Older `gh`: `gh api --method POST repos/<owner>/<repo>/issues/<story>/sub_issues -F sub_issue_id=<task-db-id>` (database id, as in **Blocking** below). Where sub-issues aren't available, put `Part of #<story>` at the top of the task body. Tech tasks also carry Scrum-Master-verifiable acceptance criteria.
 
 ## Conventions
 
