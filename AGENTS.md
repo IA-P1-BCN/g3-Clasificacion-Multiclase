@@ -8,7 +8,8 @@ Las reglas de ML comunes (datos, evaluación, contrato de modelos, app) están e
 ## Acuerdos
 - Notebooks, en orden de merge: `00_general` (problema y split), `01_eda` (EDA, limpieza común y datos en `data/`), `02_regresion_logistica`, `03_arbol_decision`, `04_svm`, `05_knn`, `06_conclusiones`.
 - Una persona por algoritmo; `06_conclusiones` lo hacemos entre todos.
-- `nbmerge` los junta en `final.ipynb`.
+- Todos los notebooks importan la librería común `comun.py` (`from comun import ...`) para cargar y limpiar datos, el baseline, la validación, la evaluación y la conclusión. Es obligatoria: no se reescriben sus funciones en un notebook. Detalle en `docs/acuerdos.md`.
+- `python unir_notebooks.py` los junta, en este orden, en `final.ipynb` (con `nbmerge`).
 - La app (Streamlit) vive en `app/` y sus tests en `tests/`.
 
 ## Agent skills
