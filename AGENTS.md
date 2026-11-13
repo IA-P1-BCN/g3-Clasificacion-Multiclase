@@ -8,7 +8,8 @@ Las reglas de ML comunes (datos, evaluación, contrato de modelos, app) están e
 ## Acuerdos
 - Notebooks, en orden de merge: `00_general` (problema y split), `01_eda` (EDA, limpieza común y datos en `data/`), `02_regresion_logistica`, `03_arbol_decision`, `04_svm`, `05_knn`, `06_conclusiones`.
 - Una persona por algoritmo; `06_conclusiones` lo hacemos entre todos.
-- `nbmerge` los junta en `final.ipynb`.
+- Todos los notebooks importan la librería común `comun.py` (`from comun import ...`) para cargar y limpiar datos, el baseline, la validación, la evaluación y la conclusión. Es obligatoria: no se reescriben sus funciones en un notebook. Detalle en `docs/acuerdos.md`.
+- `python unir_notebooks.py` los junta, en este orden, en `final.ipynb` (con `nbmerge`).
 - La app (Streamlit) vive en `app/` y sus tests en `tests/`.
 
 ## Agent skills
@@ -25,6 +26,7 @@ Single-context: `GLOSSARY.md` + `docs/adr/` en la raíz. Ver `docs/agents/domain
 - Conventional commits, con la descripción en español.
 - TDD solo en la app (`app/` + `tests/` con pytest). Los notebooks no llevan tests.
 - Todo lo que se escribe en el proyecto va en español (notebooks, docs, commits, textos de la app).
+- `README.md` se actualiza en cada PR que cambie algo de lo que cuenta (resultados, estado de los notebooks, estructura, cómo empezar o reglas). Es un resumen breve: si una sección crece, el detalle pasa a `docs/` (informe del EDA, conclusiones, brief del proyecto, registro de uso de IA…) y el README la enlaza.
 - Entorno mixto Windows/macOS: rutas relativas o `pathlib`, `encoding="utf-8"` explícito, finales de línea LF. Entorno virtual en `.venv/` con `pip install -r requirements.txt`.
 
 ## Lo que el agente no debe hacer
