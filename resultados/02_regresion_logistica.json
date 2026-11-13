@@ -1,0 +1,103 @@
+{
+  "modelo": "02_regresion_logistica",
+  "hiperparametros": {
+    "logistica__C": 0.003,
+    "logistica__class_weight": "balanced"
+  },
+  "f1_cv": 0.4342681040876079,
+  "desv_cv": 0.021331169396553565,
+  "gap_cv": 3.4091583169287896,
+  "f1_cv_sitio": 0.39674911632876986,
+  "desv_cv_sitio": 0.029730829235187654,
+  "f1_train": 0.4943294999548112,
+  "f1_val": 0.46770052527780936,
+  "f1_val_medidas": 0.4290975841013388,
+  "gap": 6.523191585347238,
+  "cumple_gap": false,
+  "metricas": {
+    "toda la validación": {
+      "F1 macro": 0.46770052527780936,
+      "supera Dummy (puntos)": 22.405598084586334,
+      "accuracy": 0.509090909090909,
+      "accuracy balanceada": 0.5167641325536063,
+      "precision macro": 0.5105412976001211,
+      "recall macro": 0.5167641325536063,
+      "F1 ponderado": 0.47433273211693683
+    },
+    "solo con medidas": {
+      "F1 macro": 0.4290975841013388,
+      "supera Dummy (puntos)": 32.831018252653564,
+      "accuracy": 0.43157894736842106,
+      "accuracy balanceada": 0.49824561403508777,
+      "precision macro": 0.4663152533740769,
+      "recall macro": 0.49824561403508777,
+      "F1 ponderado": 0.40149130591868226
+    }
+  },
+  "por_clase": {
+    "toda la validación": {
+      "none": {
+        "precision": 0.6756756756756757,
+        "recall": 0.9259259259259259,
+        "f1": 0.78125,
+        "soporte": 27.0
+      },
+      "low": {
+        "precision": 0.5294117647058824,
+        "recall": 0.5625,
+        "f1": 0.5454545454545454,
+        "soporte": 16.0
+      },
+      "average": {
+        "precision": 0.5,
+        "recall": 0.15789473684210525,
+        "f1": 0.24,
+        "soporte": 19.0
+      },
+      "good": {
+        "precision": 0.5333333333333333,
+        "recall": 0.25,
+        "f1": 0.3404255319148936,
+        "soporte": 32.0
+      },
+      "best": {
+        "precision": 0.3142857142857143,
+        "recall": 0.6875,
+        "f1": 0.43137254901960786,
+        "soporte": 16.0
+      }
+    },
+    "solo con medidas": {
+      "none": {
+        "precision": 0.45454545454545453,
+        "recall": 0.8333333333333334,
+        "f1": 0.5882352941176471,
+        "soporte": 12.0
+      },
+      "low": {
+        "precision": 0.5294117647058824,
+        "recall": 0.5625,
+        "f1": 0.5454545454545454,
+        "soporte": 16.0
+      },
+      "average": {
+        "precision": 0.5,
+        "recall": 0.15789473684210525,
+        "f1": 0.24,
+        "soporte": 19.0
+      },
+      "good": {
+        "precision": 0.5333333333333333,
+        "recall": 0.25,
+        "f1": 0.3404255319148936,
+        "soporte": 32.0
+      },
+      "best": {
+        "precision": 0.3142857142857143,
+        "recall": 0.6875,
+        "f1": 0.43137254901960786,
+        "soporte": 16.0
+      }
+    }
+  }
+}

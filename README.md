@@ -17,14 +17,14 @@ Métrica principal: **F1 macro**. Se mide en validación (110 parcelas) y las pa
 | Modelo | F1 validación | Gap (puntos) | Estado |
 |---|---|---|---|
 | Dummy (referencia) | 0.244 | — | baseline a superar |
-| [Regresión logística](02_regresion_logistica.ipynb) | — | — | implementada; pendiente de ejecución completa (#38) |
+| [Regresión logística](02_regresion_logistica.ipynb) | 0.468 | 6.52 ❌ | ejecutada; no cumple el gap (PR #72) |
 | Árbol de decisión | 0.562 | 3.6 ✅ | PR #69 |
 | SVM | — | — | en curso (PR #68) |
 | KNN | — | — | en curso |
 
 El modelo ganador se elige y se evalúa en test en `06_conclusiones`.
 
-La regresión logística incluye el pipeline, la búsqueda de hiperparámetros solo en train, las dos CV, métricas con y sin parcelas sin medidas, coeficientes y análisis de errores. Sus cifras se publicarán después de ejecutar y verificar el notebook completo.
+La regresión logística supera al Dummy, pero todavía no es candidata al modelo ganador: su gap es 6.52 puntos. El [notebook ejecutado](02_regresion_logistica.ipynb) explica el resultado, las confusiones y los límites; el [JSON de resultados](resultados/02_regresion_logistica.json) registra `cumple_gap=false`. F1 en CV: 0.434 ± 0.021; por sitio: 0.397 ± 0.030.
 
 ## Notebooks (en orden)
 | Notebook | Qué hace | Responsable |
@@ -56,7 +56,7 @@ pip install -r requirements.txt
 python unir_notebooks.py         # genera final.ipynb con los notebooks que existan
 ```
 
-Para ejecutar la regresión logística, abre `02_regresion_logistica.ipynb` desde la raíz del repo en Jupyter o VS Code, selecciona el Python de `.venv` y ejecuta todas las celdas en orden. Lee únicamente los CSV compartidos de train y validación; no necesita volver a descargar OpenML. Al terminar genera `models/02_regresion_logistica.joblib` y `resultados/02_regresion_logistica.json`, y comprueba la recarga del pipeline en un proceso Python nuevo. Ambos archivos se incluyen en la entrega una vez verificada la ejecución.
+Para ejecutar la regresión logística, abre `02_regresion_logistica.ipynb` desde la raíz del repo en Jupyter o VS Code, selecciona el Python de `.venv` y ejecuta todas las celdas en orden. Lee únicamente los CSV compartidos de train y validación; no necesita volver a descargar OpenML. Genera el [pipeline completo](models/02_regresion_logistica.joblib) y el [JSON de resultados](resultados/02_regresion_logistica.json), incluidos en el repo. La recarga en un proceso Python nuevo reprodujo las 110 predicciones de validación; la aplicación debe usar `predecir_con_regla` de `comun.py` para aplicar la regla `none` antes del modelo.
 
 ## Reglas comunes (resumen)
 - **`comun.py` es obligatoria:** carga, limpieza, baseline, validación, evaluación y conclusión salen de ahí (`from comun import ...`).
