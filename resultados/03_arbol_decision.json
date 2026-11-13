@@ -1,0 +1,105 @@
+{
+  "modelo": "03_arbol_decision",
+  "hiperparametros": {
+    "arbol__class_weight": null,
+    "arbol__criterion": "entropy",
+    "arbol__max_depth": 4,
+    "arbol__min_samples_leaf": 30
+  },
+  "f1_cv": 0.5651082586820915,
+  "desv_cv": 0.024517560830298407,
+  "gap_cv": 3.000665127354507,
+  "f1_cv_sitio": 0.5185834864192247,
+  "desv_cv_sitio": 0.110439024563818,
+  "f1_train": 0.5565940767111777,
+  "f1_val": 0.5616883116883116,
+  "f1_val_medidas": 0.5204795204795205,
+  "gap": 3.611455623165716,
+  "cumple_gap": true,
+  "metricas": {
+    "toda la validación": {
+      "F1 macro": 0.5616883116883116,
+      "supera Dummy (puntos)": 31.80437672563655,
+      "accuracy": 0.6363636363636364,
+      "accuracy balanceada": 0.5654361598440546,
+      "precision macro": 0.6612873563218391,
+      "recall macro": 0.5654361598440546,
+      "F1 ponderado": 0.6075265643447462
+    },
+    "solo con medidas": {
+      "F1 macro": 0.5204795204795205,
+      "supera Dummy (puntos)": 41.96921189047173,
+      "accuracy": 0.5789473684210527,
+      "accuracy balanceada": 0.5283991228070175,
+      "precision macro": 0.6169523809523809,
+      "recall macro": 0.5283991228070175,
+      "F1 ponderado": 0.5477259582522741
+    }
+  },
+  "por_clase": {
+    "toda la validación": {
+      "none": {
+        "precision": 0.7931034482758621,
+        "recall": 0.8518518518518519,
+        "f1": 0.8214285714285714,
+        "soporte": 27.0
+      },
+      "low": {
+        "precision": 0.8333333333333334,
+        "recall": 0.3125,
+        "f1": 0.45454545454545453,
+        "soporte": 16.0
+      },
+      "average": {
+        "precision": 0.48,
+        "recall": 0.631578947368421,
+        "f1": 0.5454545454545454,
+        "soporte": 19.0
+      },
+      "good": {
+        "precision": 0.6,
+        "recall": 0.84375,
+        "f1": 0.7012987012987013,
+        "soporte": 32.0
+      },
+      "best": {
+        "precision": 0.6,
+        "recall": 0.1875,
+        "f1": 0.2857142857142857,
+        "soporte": 16.0
+      }
+    },
+    "solo con medidas": {
+      "none": {
+        "precision": 0.5714285714285714,
+        "recall": 0.6666666666666666,
+        "f1": 0.6153846153846154,
+        "soporte": 12.0
+      },
+      "low": {
+        "precision": 0.8333333333333334,
+        "recall": 0.3125,
+        "f1": 0.45454545454545453,
+        "soporte": 16.0
+      },
+      "average": {
+        "precision": 0.48,
+        "recall": 0.631578947368421,
+        "f1": 0.5454545454545454,
+        "soporte": 19.0
+      },
+      "good": {
+        "precision": 0.6,
+        "recall": 0.84375,
+        "f1": 0.7012987012987013,
+        "soporte": 32.0
+      },
+      "best": {
+        "precision": 0.6,
+        "recall": 0.1875,
+        "f1": 0.2857142857142857,
+        "soporte": 16.0
+      }
+    }
+  }
+}
