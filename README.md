@@ -20,7 +20,7 @@ Métrica principal: **F1 macro**. Se mide en validación (110 parcelas) y las pa
 | Regresión logística | — | — | en curso |
 | Árbol de decisión | 0.562 | 3.6 ✅ | PR #69 |
 | SVM | — | — | en curso (PR #68) |
-| KNN | — | — | en curso |
+| KNN | 0.552 | 5.4 ❌ | listo (PR pendiente) |
 
 El modelo ganador se elige y se evalúa en test en `06_conclusiones`.
 
