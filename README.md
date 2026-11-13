@@ -17,19 +17,21 @@ Métrica principal: **F1 macro**. Se mide en validación (110 parcelas) y las pa
 | Modelo | F1 validación | Gap (puntos) | Estado |
 |---|---|---|---|
 | Dummy (referencia) | 0.244 | — | baseline a superar |
-| Regresión logística | — | — | en curso |
+| [Regresión logística](02_regresion_logistica.ipynb) | 0.468 | 6.52 ❌ | ejecutada; no cumple el gap (PR #72) |
 | Árbol de decisión | 0.562 | 3.6 ✅ | PR #69 |
 | SVM | — | — | en curso (PR #68) |
 | KNN | — | — | en curso |
 
 El modelo ganador se elige y se evalúa en test en `06_conclusiones`.
 
+La regresión logística supera al Dummy, pero todavía no es candidata al modelo ganador: su gap es 6.52 puntos. El [notebook ejecutado](02_regresion_logistica.ipynb) explica el resultado, las confusiones y los límites; el [JSON de resultados](resultados/02_regresion_logistica.json) registra `cumple_gap=false`. F1 en CV: 0.434 ± 0.021; por sitio: 0.397 ± 0.030.
+
 ## Notebooks (en orden)
 | Notebook | Qué hace | Responsable |
 |---|---|---|
 | `00_general` | Problema, métrica y split | equipo |
 | `01_eda` | EDA, limpieza común y datos en `data/` ([informe](docs/informe-eda.md)) | @ManonChab |
-| `02_regresion_logistica` | Modelo de regresión logística | @fabileoruf |
+| [`02_regresion_logistica`](02_regresion_logistica.ipynb) | Pipeline, CV, evaluación, interpretación y exportación | @fabileoruf |
 | `03_arbol_decision` | Modelo de árbol de decisión | @jcxk |
 | `04_svm` | Modelo SVM | @elenaalmansacampos |
 | `05_knn` | Modelo KNN | @ManonChab |
@@ -53,6 +55,8 @@ source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python unir_notebooks.py         # genera final.ipynb con los notebooks que existan
 ```
+
+Para ejecutar la regresión logística, abre `02_regresion_logistica.ipynb` desde la raíz del repo en Jupyter o VS Code, selecciona el Python de `.venv` y ejecuta todas las celdas en orden. Lee únicamente los CSV compartidos de train y validación; no necesita volver a descargar OpenML. Genera el [pipeline completo](models/02_regresion_logistica.joblib) y el [JSON de resultados](resultados/02_regresion_logistica.json), incluidos en el repo. La recarga en un proceso Python nuevo reprodujo las 110 predicciones de validación; la aplicación debe usar `predecir_con_regla` de `comun.py` para aplicar la regla `none` antes del modelo.
 
 ## Reglas comunes (resumen)
 - **`comun.py` es obligatoria:** carga, limpieza, baseline, validación, evaluación y conclusión salen de ahí (`from comun import ...`).

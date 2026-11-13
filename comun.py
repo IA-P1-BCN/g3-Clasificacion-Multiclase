@@ -243,8 +243,10 @@ def elegir_sin_sobreajuste(cv_results, desempate=None):
 # ---------------------------------------------------------------------------
 def predecir_con_regla(modelo, X):
     """Predice con el modelo y responde `none` a las parcelas sin medidas (ADR-0001)."""
-    prediccion = pd.Series(modelo.predict(X), index=X.index, name="predicha")
-    prediccion[sin_medidas(X)] = "none"
+    con_medidas = ~sin_medidas(X)
+    prediccion = pd.Series("none", index=X.index, name="predicha", dtype=object)
+    if con_medidas.any():
+        prediccion.loc[con_medidas] = modelo.predict(X.loc[con_medidas])
     return prediccion
 
 
