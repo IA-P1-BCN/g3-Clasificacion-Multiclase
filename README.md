@@ -19,7 +19,7 @@ Métrica principal: **F1 macro**. Se mide en validación (110 parcelas) y las pa
 | Dummy (referencia) | 0.244 | — | baseline a superar |
 | [Regresión logística](02_regresion_logistica.ipynb) | 0.468 | 6.52 ❌ | ejecutada; no cumple el gap (PR #72) |
 | Árbol de decisión | 0.562 | 3.6 ✅ | PR #69 |
-| SVM | — | — | en curso (PR #68) |
+| SVM | 0.636 | 3.0 ✅ | rama `feat/svm-modelo` |
 | KNN | — | — | en curso |
 
 El modelo ganador se elige y se evalúa en test en `06_conclusiones`.

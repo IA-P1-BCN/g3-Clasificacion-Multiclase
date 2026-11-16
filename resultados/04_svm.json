@@ -1,0 +1,102 @@
+{
+  "modelo": "04_svm",
+  "hiperparametros": {
+    "svm__C": 0.045
+  },
+  "f1_cv": 0.5817610578818527,
+  "desv_cv": 0.08534177487594609,
+  "gap_cv": 4.5325607344699925,
+  "f1_cv_sitio": 0.507477238035199,
+  "desv_cv_sitio": 0.10839721253690993,
+  "f1_train": 0.6310113429834288,
+  "f1_val": 0.6358637334075931,
+  "f1_val_medidas": 0.6007760141093474,
+  "gap": 3.0235328874081313,
+  "cumple_gap": true,
+  "metricas": {
+    "toda la validación": {
+      "F1 macro": 0.6358637334075931,
+      "supera Dummy (puntos)": 39.2219188975647,
+      "accuracy": 0.7090909090909091,
+      "accuracy balanceada": 0.6310672514619883,
+      "precision macro": 0.7553849721706865,
+      "recall macro": 0.6310672514619883,
+      "F1 ponderado": 0.6787267832881868
+    },
+    "solo con medidas": {
+      "F1 macro": 0.6007760141093474,
+      "supera Dummy (puntos)": 49.99886125345443,
+      "accuracy": 0.6631578947368421,
+      "accuracy balanceada": 0.6032894736842105,
+      "precision macro": 0.7153849721706864,
+      "recall macro": 0.6032894736842105,
+      "F1 ponderado": 0.6307695163835515
+    }
+  },
+  "por_clase": {
+    "toda la validación": {
+      "none": {
+        "precision": 0.8,
+        "recall": 0.8888888888888888,
+        "f1": 0.8421052631578947,
+        "soporte": 27.0
+      },
+      "low": {
+        "precision": 0.6363636363636364,
+        "recall": 0.4375,
+        "f1": 0.5185185185185185,
+        "soporte": 16.0
+      },
+      "average": {
+        "precision": 0.6875,
+        "recall": 0.5789473684210527,
+        "f1": 0.6285714285714286,
+        "soporte": 19.0
+      },
+      "good": {
+        "precision": 0.6530612244897959,
+        "recall": 1.0,
+        "f1": 0.7901234567901234,
+        "soporte": 32.0
+      },
+      "best": {
+        "precision": 1.0,
+        "recall": 0.25,
+        "f1": 0.4,
+        "soporte": 16.0
+      }
+    },
+    "solo con medidas": {
+      "none": {
+        "precision": 0.6,
+        "recall": 0.75,
+        "f1": 0.6666666666666666,
+        "soporte": 12.0
+      },
+      "low": {
+        "precision": 0.6363636363636364,
+        "recall": 0.4375,
+        "f1": 0.5185185185185185,
+        "soporte": 16.0
+      },
+      "average": {
+        "precision": 0.6875,
+        "recall": 0.5789473684210527,
+        "f1": 0.6285714285714286,
+        "soporte": 19.0
+      },
+      "good": {
+        "precision": 0.6530612244897959,
+        "recall": 1.0,
+        "f1": 0.7901234567901234,
+        "soporte": 32.0
+      },
+      "best": {
+        "precision": 1.0,
+        "recall": 0.25,
+        "f1": 0.4,
+        "soporte": 16.0
+      }
+    }
+  }
+}
