@@ -17,12 +17,10 @@ Métrica principal: **F1 macro**. Se mide en validación (110 parcelas) y las pa
 | Modelo | F1 validación | Gap (puntos) | Estado |
 |---|---|---|---|
 | Dummy (referencia) | 0.244 | — | baseline a superar |
-| [Regresión logística](02_regresion_logistica.ipynb) | 0.468 | 6.52 ❌ | ejecutada; no cumple el gap (PR #72) |
-| Árbol de decisión | 0.562 | 3.6 ✅ | PR #69 |
-| SVM | — | — | en curso (PR #68) |
-| KNN | 0.552 | 5.4 ❌ | PR #73 (gap aceptado: ver `05_knn`) |
-| SVM | 0.636 | 3.0 ✅ | rama `feat/svm-modelo` |
-| KNN | — | — | en curso |
+| [Regresión logística](02_regresion_logistica.ipynb) | 0.468 | 6.5 ❌ | no cumple el gap (PR #72) |
+| [Árbol de decisión](03_arbol_decision.ipynb) | 0.562 | 3.6 ✅ | cumple (PR #69) |
+| [SVM](04_svm.ipynb) | 0.636 | 3.0 ✅ | cumple (PR #74) |
+| [KNN](05_knn.ipynb) | 0.552 | 5.4 ❌ | gap aceptado: ver `05_knn` (PR #73) |
 
 El modelo ganador se elige y se evalúa en test en `06_conclusiones`.
 
