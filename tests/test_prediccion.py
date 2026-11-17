@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 from app.prediccion import cargar_modelo, nombre_ganador, predecir
-from comun import CLASES, DATOS, predecir_con_regla
+from comun import CLASES, DATOS, MEDIDAS, predecir_con_regla
 
 
 @pytest.fixture(scope="module")
@@ -38,3 +38,20 @@ def test_coincide_con_el_notebook_en_toda_la_validacion(modelo, val):
     esperado = predecir_con_regla(modelo, val[variables])
     obtenido = [predecir(modelo, parcela(f, variables)).clase for _, f in val.iterrows()]
     assert obtenido == list(esperado)
+
+
+# --- Parcelas sin medidas: `none` por regla fija (ADR-0001) ---------------------
+
+
+@pytest.mark.parametrize("vacio", [None, ""])
+def test_sin_medidas_responde_none_por_regla(modelo, vacio):
+    datos = {"Abbrev": "Puk", "DBH": 10.0, "Ht": 8.0, **dict.fromkeys(MEDIDAS, vacio)}
+    resultado = predecir(modelo, datos)
+    assert resultado.clase == "none"
+    assert resultado.por_regla
+
+
+def test_con_medidas_no_es_por_regla(modelo, val):
+    con_medidas = val.dropna(subset=["Vig"]).iloc[0]
+    resultado = predecir(modelo, parcela(con_medidas, modelo.feature_names_in_))
+    assert not resultado.por_regla
