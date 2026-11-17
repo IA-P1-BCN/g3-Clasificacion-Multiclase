@@ -45,7 +45,9 @@ data/               train, val y test limpios (los genera 01_eda)
 models/             pipeline de cada modelo (.joblib)
 resultados/         cifras de cada modelo (.json) para 06_conclusiones
 docs/               acuerdos, ADRs, enunciado y guías
-app/, tests/        app de Streamlit y sus tests (próximamente)
+app/                app de Streamlit: main.py (interfaz) y prediccion.py (lógica)
+tests/              tests de la app (pytest)
+final.ipynb         los notebooks 00 → 06 juntos y ejecutados, con índice
 ```
 
 ## Empezar
@@ -53,8 +55,12 @@ app/, tests/        app de Streamlit y sus tests (próximamente)
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+streamlit run app/main.py        # abre la app en el navegador
+pytest                           # tests de la app
 python unir_notebooks.py         # regenera final.ipynb (luego ejecútalo entero antes de commitearlo)
 ```
+
+**La app:** eliges el sitio, rellenas el tamaño y las medidas de una parcela (o cargas una de validación) y devuelve su clase de utilidad con el modelo ganador. Si faltan todas las medidas, responde `none` por regla y lo dice; si un valor es imposible, avisa y no predice.
 
 Para ejecutar la regresión logística, abre `02_regresion_logistica.ipynb` desde la raíz del repo en Jupyter o VS Code, selecciona el Python de `.venv` y ejecuta todas las celdas en orden. Lee únicamente los CSV compartidos de train y validación; no necesita volver a descargar OpenML. Genera el [pipeline completo](models/02_regresion_logistica.joblib) y el [JSON de resultados](resultados/02_regresion_logistica.json), incluidos en el repo. La recarga en un proceso Python nuevo reprodujo las 110 predicciones de validación; la aplicación debe usar `predecir_con_regla` de `comun.py` para aplicar la regla `none` antes del modelo.
 

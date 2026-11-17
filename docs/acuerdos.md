@@ -40,5 +40,7 @@ Todo el código que se repite entre notebooks vive en `comun.py`, en la raíz. *
 
 ## App (`app/`)
 - Streamlit, con la lógica (cargar el pipeline, validar la entrada, predecir) separada de la UI. TDD con pytest en `tests/`.
-- Carga `models/<ganador>.joblib`.
+- Carga `models/<ganador>.joblib`: el ganador se lee con `cargar_resultados()` (el primero que cumple el gap), igual que en `06`, sin escribirlo a mano.
+- Formulario con las variables que usa el modelo. Rangos que se aceptan: `DBH` (0, 200] cm, `Ht` (0, 60] m, `Surv` [0, 100] %, puntuaciones [0, 5]. Fuera de rango o texto en un número → error claro y no predice.
+- Si faltan algunas medidas, predice igual (el pipeline las imputa) y avisa. Si el sitio es Mor, Wen u otro que el modelo no vio, predice y avisa de que es menos fiable.
 - Si la entrada no trae medidas, devuelve `none` por regla fija sin llamar al modelo (ADR-0001), y la app lo indica.
