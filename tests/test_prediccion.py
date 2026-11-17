@@ -93,3 +93,42 @@ def test_avisa_de_todos_los_errores_a_la_vez(modelo, valida):
 def test_los_limites_son_validos(modelo, valida):
     limites = {"Surv": 0, "Vig": 5, "Ins_res": 0, "Stem_Fm": 5, "DBH": 200, "Ht": 60}
     assert predecir(modelo, {**valida, **limites}).clase in CLASES
+
+
+# --- Datos incompletos y sitios que el modelo no conoce ---------------------
+def test_con_algunas_medidas_predice_y_dice_cuales_faltan(modelo, valida):
+    resultado = predecir(modelo, {**valida, "Surv": None, "Ins_res": ""})
+    assert resultado.clase in CLASES
+    assert not resultado.por_regla
+    assert resultado.faltan == ["Surv", "Ins_res"]
+
+
+def test_completa_no_le_falta_nada(modelo, valida):
+    assert predecir(modelo, valida).faltan == []
+
+
+@pytest.mark.parametrize("sitio", ["Mor", "Wen", "Otro / desconocido", None])
+def test_sitio_que_el_modelo_no_vio_predice_y_avisa(modelo, valida, sitio):
+    resultado = predecir(modelo, {**valida, "Abbrev": sitio})
+    assert resultado.clase in CLASES
+    assert not resultado.sitio_conocido
+
+
+def test_sitio_visto_en_el_entrenamiento(modelo, valida):
+    assert predecir(modelo, {**valida, "Abbrev": "Puk"}).sitio_conocido
+
+
+def test_la_logica_no_importa_streamlit():
+    import ast
+    from pathlib import Path
+
+    codigo = (Path(__file__).parents[1] / "app" / "prediccion.py").read_text(
+        encoding="utf-8"
+    )
+    importados = set()
+    for nodo in ast.walk(ast.parse(codigo)):
+        if isinstance(nodo, ast.Import):
+            importados |= {alias.name.split(".")[0] for alias in nodo.names}
+        elif isinstance(nodo, ast.ImportFrom):
+            importados.add((nodo.module or "").split(".")[0])
+    assert "streamlit" not in importados
