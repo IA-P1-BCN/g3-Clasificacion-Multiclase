@@ -23,7 +23,7 @@ Todo el código que se repite entre notebooks vive en `comun.py`, en la raíz. *
 | Evaluación | `evaluar_val()` y `mostrar_evaluacion()` (métricas, gap, P/R/F1 por clase, matrices), `nivel_f1()`, `nivel_gap()`, `nivel_baseline()`, `importancia_permutacion()`, `errores_frecuentes()` | `02`–`05` |
 | Salida | `guardar_modelo()`, `conclusion_modelo()` (requisitos + resumen), `guardar_resultados()` → `resultados/<notebook>.json`, `cargar_resultados()` | `02`–`05`; `06` |
 
-`final.ipynb` se genera con `python unir_notebooks.py` (orden `00` → `06`) y se commitea en la entrega, después de comprobar que se ejecuta entero.
+`final.ipynb` se genera con `python unir_notebooks.py` (orden `00` → `06`) y se commitea **ejecutado**, después de comprobar que se ejecuta entero: es lo que abre el botón de Colab del README. Si cambia algún notebook, se regenera y se vuelve a ejecutar en la misma PR.
 
 ## Evaluación (notebooks `02`–`05`)
 - Validación cruzada común: `StratifiedKFold(n_splits=5, shuffle=True, random_state=42)` sobre train.
