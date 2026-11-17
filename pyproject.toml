@@ -1,0 +1,4 @@
+[tool.pytest.ini_options]
+# Los tests importan `app` y `comun` desde la raíz del repo
+pythonpath = ["."]
+testpaths = ["tests"]
