@@ -13,7 +13,6 @@ import pandas as pd
 
 from comun import MODELOS, cargar_resultados, predecir_con_regla, sin_medidas
 
-
 # Etiquetas en español de cada variable del formulario
 ETIQUETAS = {
     "Abbrev": "Sitio del ensayo",
@@ -40,8 +39,24 @@ RANGOS = {
 }
 # Los 16 sitios del ensayo. Mor y Wen solo tienen parcelas sin medidas, así que el
 # modelo no los vio al entrenar (ver `sitios_del_modelo`).
-SITIOS = ["Cly", "Cra", "K81", "K81a", "K82", "K83", "Lon", "Mor", "Nga", "Paw",
-          "Puk", "WSh", "WSp", "Wai", "Wak", "Wen"]
+SITIOS = [
+    "Cly",
+    "Cra",
+    "K81",
+    "K81a",
+    "K82",
+    "K83",
+    "Lon",
+    "Mor",
+    "Nga",
+    "Paw",
+    "Puk",
+    "WSh",
+    "WSp",
+    "Wai",
+    "Wak",
+    "Wen",
+]
 SITIO_DESCONOCIDO = "Otro / desconocido"
 
 
@@ -59,6 +74,8 @@ class Prediccion:
 
     clase: str
     por_regla: bool  # True si es `none` por ser una parcela sin medidas
+    faltan: list  # variables vacías: el pipeline las completa con la mediana
+    sitio_conocido: bool  # False si el modelo no vio ese sitio al entrenar
 
 
 def nombre_ganador():
@@ -81,14 +98,21 @@ def predecir(modelo, datos):
     fila = validar(modelo, datos)
     X = pd.DataFrame([fila], columns=variables)
     clase = predecir_con_regla(modelo, X).iloc[0]
-    return Prediccion(clase=clase, por_regla=bool(sin_medidas(X).iloc[0]))
+    return Prediccion(
+        clase=clase,
+        por_regla=bool(sin_medidas(X).iloc[0]),
+        faltan=[v for v in variables if v != "Abbrev" and pd.isna(fila[v])],
+        sitio_conocido=fila.get("Abbrev") in sitios_del_modelo(modelo),
+    )
 
 
 def sitios_del_modelo(modelo):
     """Los sitios que el modelo vio al entrenar (categorías del one-hot de `Abbrev`)."""
     for _, transformador, columnas in modelo[0].transformers_:
         if "Abbrev" in list(columnas):
-            codificador = getattr(transformador, "steps", [(None, transformador)])[-1][1]
+            codificador = getattr(transformador, "steps", [(None, transformador)])[-1][
+                1
+            ]
             return list(codificador.categories_[list(columnas).index("Abbrev")])
     return []
 

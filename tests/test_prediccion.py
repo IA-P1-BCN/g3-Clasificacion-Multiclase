@@ -36,7 +36,9 @@ def test_predice_una_de_las_cinco_clases(modelo, val):
 def test_coincide_con_el_notebook_en_toda_la_validacion(modelo, val):
     variables = list(modelo.feature_names_in_)
     esperado = predecir_con_regla(modelo, val[variables])
-    obtenido = [predecir(modelo, parcela(f, variables)).clase for _, f in val.iterrows()]
+    obtenido = [
+        predecir(modelo, parcela(f, variables)).clase for _, f in val.iterrows()
+    ]
     assert obtenido == list(esperado)
 
 
