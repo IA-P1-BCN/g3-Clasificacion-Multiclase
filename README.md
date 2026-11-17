@@ -22,7 +22,7 @@ Métrica principal: **F1 macro**. Se mide en validación (110 parcelas) y las pa
 | [SVM](04_svm.ipynb) | 0.636 | 3.0 ✅ | cumple (PR #74) |
 | [KNN](05_knn.ipynb) | 0.552 | 5.4 ❌ | gap aceptado: ver `05_knn` (PR #73) |
 
-**Modelo ganador: SVM** (mayor F1 en validación entre los que cumplen el gap). En test, evaluado una sola vez: F1 macro **0.655**, accuracy 0.685 y gap −1.1 puntos ✅. Comparación, test, errores y conclusiones en [`06_conclusiones`](06_conclusiones.ipynb).
+**Modelo ganador: SVM** (mayor F1 en validación entre los que cumplen el gap). En test, evaluado una sola vez: F1 macro **0.655**, accuracy 0.685 y gap −1.1 puntos ✅. Comparación, test, errores y conclusiones en [`06_conclusiones`](06_conclusiones.ipynb); el informe completo, en el [informe técnico](docs/informe-tecnico.md).
 
 La regresión logística supera al Dummy, pero todavía no es candidata al modelo ganador: su gap es 6.52 puntos. El [notebook ejecutado](02_regresion_logistica.ipynb) explica el resultado, las confusiones y los límites; el [JSON de resultados](resultados/02_regresion_logistica.json) registra `cumple_gap=false`. F1 en CV: 0.434 ± 0.021; por sitio: 0.397 ± 0.030.
 
