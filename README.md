@@ -4,7 +4,7 @@
 ![Python](https://img.shields.io/badge/python-3.14-blue)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.9-orange)
 
-> El botón de Colab abre `final.ipynb`, el notebook final con todos los demás en orden. Se genera en la entrega con `python unir_notebooks.py`; hasta entonces el enlace no funciona.
+> El botón de Colab abre `final.ipynb`: los notebooks `00` → `06` juntos, en orden y ya ejecutados, así que se pueden leer sin ejecutar nada. Si quieres ejecutarlo en Colab, la primera celda descarga el repo (`comun.py`, `data/`, `models/`) e instala `requirements.txt`. Si Colab reinicia la sesión para cargar las versiones nuevas, vuelve a darle a *Ejecutar todas*.
 
 ## Qué hacemos
 Predecimos la **utilidad** (`Utility`) de un lote de semillas de eucalipto para la conservación del suelo, en 5 clases ordenadas: `none` < `low` < `average` < `good` < `best`. Datos: *Eucalyptus Soil Conservation* ([OpenML 188](https://www.openml.org/d/188)), 736 parcelas de ensayo en Nueva Zelanda.
@@ -53,7 +53,7 @@ app/, tests/        app de Streamlit y sus tests (próximamente)
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-python unir_notebooks.py         # genera final.ipynb con los notebooks que existan
+python unir_notebooks.py         # regenera final.ipynb (luego ejecútalo entero antes de commitearlo)
 ```
 
 Para ejecutar la regresión logística, abre `02_regresion_logistica.ipynb` desde la raíz del repo en Jupyter o VS Code, selecciona el Python de `.venv` y ejecuta todas las celdas en orden. Lee únicamente los CSV compartidos de train y validación; no necesita volver a descargar OpenML. Genera el [pipeline completo](models/02_regresion_logistica.joblib) y el [JSON de resultados](resultados/02_regresion_logistica.json), incluidos en el repo. La recarga en un proceso Python nuevo reprodujo las 110 predicciones de validación; la aplicación debe usar `predecir_con_regla` de `comun.py` para aplicar la regla `none` antes del modelo.

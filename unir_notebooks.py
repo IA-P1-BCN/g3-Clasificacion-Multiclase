@@ -41,7 +41,16 @@ if "google.colab" in sys.modules and not os.path.exists("comun.py"):
     )
     if instalado.returncode != 0:
         print("⚠️ No se han podido instalar todas las versiones fijadas; "
-              "se usan las de Colab.")"""
+              "se usan las de Colab.")
+    # Si Colab ya tenía cargada otra versión de una librería, hay que reiniciar
+    from importlib.metadata import version
+    librerias = {{"numpy": "numpy", "pandas": "pandas", "sklearn": "scikit-learn",
+                  "scipy": "scipy", "matplotlib": "matplotlib"}}
+    if any(modulo in sys.modules and sys.modules[modulo].__version__ != version(paquete)
+           for modulo, paquete in librerias.items()):
+        print("🔄 Versiones nuevas instaladas: se reinicia la sesión. "
+              "Vuelve a ejecutar todo (Entorno de ejecución > Ejecutar todas).")
+        os.kill(os.getpid(), 9)"""
 
 
 def main():
