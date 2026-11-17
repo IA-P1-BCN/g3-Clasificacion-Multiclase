@@ -11,7 +11,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from comun import MODELOS, cargar_resultados, predecir_con_regla
+from comun import MODELOS, cargar_resultados, predecir_con_regla, sin_medidas
 
 
 @dataclass(frozen=True)
@@ -39,7 +39,16 @@ def cargar_modelo(nombre=None):
 def predecir(modelo, datos):
     """Predice la clase de una parcela. `datos`: {variable: valor} del formulario."""
     variables = list(modelo.feature_names_in_)
-    fila = {v: (np.nan if datos.get(v) is None else datos[v]) for v in variables}
+    fila = {v: (np.nan if _vacio(datos.get(v)) else datos[v]) for v in variables}
     X = pd.DataFrame([fila], columns=variables)
     clase = predecir_con_regla(modelo, X).iloc[0]
-    return Prediccion(clase=clase, por_regla=False)
+    return Prediccion(clase=clase, por_regla=bool(sin_medidas(X).iloc[0]))
+
+
+def _vacio(valor):
+    """Un campo sin rellenar: None, texto vacío o NaN."""
+    if valor is None:
+        return True
+    if isinstance(valor, str):
+        return valor.strip() == ""
+    return isinstance(valor, float) and np.isnan(valor)
