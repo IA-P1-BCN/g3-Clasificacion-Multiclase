@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Árbol de decisión: utilidad de parcelas de eucalipto</title>
+<!-- Presentación autónoma. Flechas o espacio para moverse, N para las notas del orador.
+     Rellenar los recuadros: clic en el texto entre corchetes para escribir; clic, arrastrar o pegar (Ctrl+V)
+     una imagen en los recuadros de captura. «Guardar mi versión» descarga este mismo fichero con los cambios. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&family=Inter:wght@400;600&display=swap">
+<style>
+section {
+  background: #F5F8FB;
+  color: #12233A;
+  font-family: 'Inter', sans-serif;
+  padding: 128px 128px 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+section h1, section h2, section h3, section p, section ul, section ol, section table { margin: 0; }
+section.dark { background: #12233A; color: #F2F6FA; }
+section.dark.center { justify-content: center; }
+
+/* Encabezado de cada diapositiva */
+.head { display: flex; flex-direction: column; gap: 16px; }
+.kicker { font-size: 24px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #1A7871; }
+h1 { font-family: 'Space Grotesk', sans-serif; font-size: 96px; line-height: 1.05; font-weight: 700; color: #F2F6FA; }
+h2 { font-family: 'Space Grotesk', sans-serif; font-size: 64px; line-height: 1.1; font-weight: 700; color: #12233A; }
+.rule { width: 96px; height: 8px; background: #239189; border-radius: 4px; }
+
+/* Texto */
+.lead { font-size: 36px; font-weight: 600; line-height: 1.35; color: #12233A; }
+.body { font-size: 30px; line-height: 1.45; color: #2B3D52; }
+.list { font-size: 32px; line-height: 1.4; color: #2B3D52; padding-left: 40px; display: flex; flex-direction: column; gap: 20px; }
+.mono { font-family: monospace; font-weight: 600; color: #1D5A8E; }
+
+/* Tarjetas */
+.cards { display: flex; gap: 32px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.card { flex: 1; background: #FFFFFF; border: 2px solid #D3DEE8; border-radius: 20px; padding: 36px 40px; display: flex; flex-direction: column; gap: 12px; }
+.card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; line-height: 1.2; color: #12233A; }
+.card p { font-size: 26px; line-height: 1.4; color: #3A4B5F; }
+.card .stat { font-family: 'Space Grotesk', sans-serif; font-size: 88px; font-weight: 700; line-height: 1; color: #2467A0; }
+.card .stat-sm { font-family: 'Space Grotesk', sans-serif; font-size: 44px; font-weight: 700; line-height: 1.1; color: #12233A; }
+.card .steps { font-size: 28px; line-height: 1.4; color: #2B3D52; padding-left: 36px; display: flex; flex-direction: column; gap: 12px; }
+
+/* Colores de las cinco clases de Utility */
+.card.k-none { border-top: 10px solid #6B7B8D; }
+.card.k-low { border-top: 10px solid #2467A0; }
+.card.k-avg { border-top: 10px solid #4A79B8; }
+.card.k-good { border-top: 10px solid #239189; }
+.card.k-best { border-top: 10px solid #D98A1C; }
+.card .t-none { color: #55657A; }
+.card .t-low { color: #2467A0; }
+.card .t-avg { color: #3A68A6; }
+.card .t-good { color: #1A7871; }
+.card .t-best { color: #A35A00; }
+.card .t-bad { color: #B3261E; }
+
+/* Destacado */
+.note { background: #E4F1F0; border-left: 8px solid #239189; border-radius: 0 12px 12px 0; padding: 28px 40px; font-size: 28px; line-height: 1.4; font-weight: 600; color: #12233A; }
+.note.blue { background: #E6EEF7; border-left-color: #2467A0; }
+
+/* Agenda */
+.rows { display: flex; flex-direction: column; }
+.row { display: flex; gap: 40px; align-items: baseline; padding: 20px 0; border-top: 2px solid #D3DEE8; }
+.row .n { width: 72px; font-family: 'Space Grotesk', sans-serif; font-size: 40px; font-weight: 700; color: #1A7871; }
+.row .t { width: 360px; font-size: 34px; font-weight: 700; color: #12233A; }
+.row .d { flex: 1; font-size: 28px; line-height: 1.35; color: #3A4B5F; }
+
+/* Tabla de hiperparámetros */
+.tbl { width: 100%; border-collapse: collapse; font-size: 32px; }
+.tbl th { text-align: left; font-size: 24px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #55657A; padding: 16px 28px; border-bottom: 3px solid #12233A; }
+.tbl td { padding: 26px 28px; border-bottom: 2px solid #D3DEE8; color: #12233A; }
+.tbl tr.pick td { background: #E4F1F0; font-weight: 700; }
+.ok { color: #1A7871; font-weight: 700; }
+.bad { color: #B3261E; font-weight: 700; }
+
+/* Barras de importancia */
+.bars { display: flex; flex-direction: column; gap: 32px; }
+.bar-row { display: flex; align-items: center; gap: 32px; }
+.bar-label { width: 420px; font-size: 30px; font-weight: 600; color: #12233A; }
+.bar-track { flex: 1; height: 44px; background: #E3EAF1; border-radius: 8px; display: flex; }
+.bar-fill { height: 44px; background: #2467A0; border-radius: 8px; transform-origin: left center; animation: grow 0.7s ease-out 0.2s both; }
+.bar-fill.top { background: #239189; }
+.bar-val { width: 120px; font-size: 32px; font-weight: 700; text-align: right; color: #12233A; }
+
+/* Pie de página */
+.footer { position: absolute; left: 128px; bottom: 64px; width: 1664px; display: flex; justify-content: space-between; }
+.footer p { font-size: 24px; letter-spacing: 0.08em; color: #6A7A8C; }
+
+/* Variantes oscuras */
+.dark .kicker { color: #5CC6BD; }
+.dark h2 { color: #F2F6FA; }
+.dark .body { color: #C9D5E2; }
+.dark .list { color: #E3EBF3; }
+.dark .note { background: #1C3452; border-left-color: #5CC6BD; color: #F2F6FA; }
+.dark .footer p { color: #8EA1B6; }
+.cover-sub { font-size: 40px; line-height: 1.35; color: #C9D5E2; width: 1300px; }
+.cover-meta { font-size: 28px; color: #9FB0C3; }
+
+/* Movimiento: entrada escalonada de tarjetas y filas */
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } }
+@keyframes grow { from { transform: scaleX(0); } }
+.cards > div, .grid2 > div, .rows > div, .bar-row, .note { animation: rise 0.5s ease-out both; }
+.cards > div:nth-child(2), .grid2 > div:nth-child(2), .rows > div:nth-child(2), .bar-row:nth-child(2) { animation-delay: 0.08s; }
+.cards > div:nth-child(3), .grid2 > div:nth-child(3), .rows > div:nth-child(3), .bar-row:nth-child(3) { animation-delay: 0.16s; }
+.cards > div:nth-child(4), .grid2 > div:nth-child(4), .rows > div:nth-child(4), .bar-row:nth-child(4) { animation-delay: 0.24s; }
+.cards > div:nth-child(5), .rows > div:nth-child(5), .bar-row:nth-child(5) { animation-delay: 0.32s; }
+.note { animation-delay: 0.4s; }
+.tbl.compact td { padding: 18px 28px; }
+.tbl tr.dim td { color: #55657A; }
+
+.tbl.small { font-size: 26px; }
+.tbl.small td { padding: 12px 24px; }
+.tbl.small th { padding: 12px 24px; }
+.pos { color: #1A7871; font-weight: 700; }
+.neg { color: #B3261E; font-weight: 700; }
+
+
+* { margin: 0; }
+p, li, h1, h2, h3, td, th { overflow-wrap: break-word; }
+table:not([class]) { border-collapse: separate; border-spacing: 0; border: solid #0003; border-width: 2px 0 0 2px; }
+table:not([class]) th, table:not([class]) td { padding: .35em .6em; text-align: left; border: solid #0003; border-width: 0 2px 2px 0; }
+html, body { margin: 0; height: 100%; background: #0B1A15; overflow: hidden; }
+#stage { position: fixed; inset: 0 0 56px 0; overflow: hidden; }
+#deck { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center center; }
+#deck > section { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; box-sizing: border-box; overflow: hidden; }
+#deck > section:not(.active) { display: none !important; }
+aside { display: none; }
+x-shape, x-icon { display: block; }
+x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%, 58% 100%, 58% 72%, 0 72%); }
+.shotbox { cursor: pointer; }
+.shotbox:hover { border-color: #1F7A58; }
+.ph[contenteditable="true"] { outline: none; cursor: text; }
+.ph[contenteditable="true"]:hover, .ph[contenteditable="true"]:focus { background: #CFE6DA; border-radius: 6px; }
+#bar { position: fixed; left: 0; right: 0; bottom: 0; height: 56px; display: flex; align-items: center; justify-content: center; gap: 10px; background: #10241E; color: #E9EFE9; font: 600 16px/1 Inter, Arial, sans-serif; z-index: 10; }
+#bar button { font: inherit; color: #E9EFE9; background: #1B3A30; border: 1px solid #2F5A4A; border-radius: 8px; padding: 9px 14px; cursor: pointer; }
+#bar button:hover { background: #24503F; }
+#bar button.on { background: #1F7A58; }
+#bar .sep { width: 1px; height: 24px; background: #2F5A4A; margin: 0 6px; }
+#pos { min-width: 70px; text-align: center; }
+#notes { position: fixed; left: 0; right: 0; bottom: 56px; max-height: 28vh; overflow: auto; padding: 14px 24px; background: rgba(16, 36, 30, .96); color: #E9EFE9; font: 400 20px/1.4 Inter, Arial, sans-serif; display: none; z-index: 9; }
+#notes.show { display: block; }
+@media print {
+  html, body { height: auto; overflow: visible; background: none; }
+  #stage { position: static; overflow: visible; }
+  #deck { position: static; transform: none !important; width: auto; height: auto; }
+  #deck > section { display: var(--sec-display, block) !important; position: relative; break-after: page; page-break-after: always; }
+  #bar, #notes { display: none !important; }
+  .anim { animation: none !important; }
+  @page { size: 1920px 1080px; margin: 0; }
+}
+:root { --sec-display: flex; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="deck">
+<section id="portada" class="dark center" data-transition="fade">
+<p class="kicker">Proyecto de Machine Learning</p>
+<h1>Árbol de decisión:<br>utilidad de parcelas de eucalipto</h1>
+<p class="cover-sub">Cómo clasificamos parcelas con reglas que se pueden leer, sin memorizar</p>
+<div class="rule"></div>
+<p class="cover-meta">Historia #39  ·  Notebook 03_arbol_decision.ipynb  ·  Dataset Eucalyptus</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>1</p></div>
+</section>
+<section id="agenda">
+<div class="head"><p class="kicker">Introducción</p><h2>Qué vamos a explicar</h2></div>
+<div class="rows">
+<div class="row"><p class="n">01</p><p class="t">El problema</p><p class="d">Qué significa predecir la utilidad de una parcela.</p></div>
+<div class="row"><p class="n">02</p><p class="t">Datos y modelo</p><p class="d">Qué recibe el árbol y cómo decide con preguntas.</p></div>
+<div class="row"><p class="n">03</p><p class="t">Sobreajuste</p><p class="d">Por qué un árbol sin límites memoriza.</p></div>
+<div class="row"><p class="n">04</p><p class="t">Ajuste</p><p class="d">Cómo elegimos un árbol que generaliza.</p></div>
+<div class="row"><p class="n">05</p><p class="t">Resultados</p><p class="d">Qué acierta, qué reglas aprende y dónde se equivoca.</p></div>
+</div>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>2</p></div>
+</section>
+<section id="problema">
+<div class="head"><p class="kicker">Problema</p><h2>1. El problema: clasificar la utilidad</h2></div>
+<p class="lead">Queremos predecir la variable objetivo <b>Utility</b> para cada parcela de eucalipto.</p>
+<div class="cards">
+<div class="card k-none"><h3 class="t-none">none</h3><p>Sin utilidad</p></div>
+<div class="card k-low"><h3 class="t-low">low</h3><p>Baja</p></div>
+<div class="card k-avg"><h3 class="t-avg">average</h3><p>Media</p></div>
+<div class="card k-good"><h3 class="t-good">good</h3><p>Buena</p></div>
+<div class="card k-best"><h3 class="t-best">best</h3><p>Muy buena</p></div>
+</div>
+<p class="body">Es un problema de <b>clasificación multiclase</b>: asignamos a cada parcela una de cinco etiquetas. Métrica principal: <b>F1 macro</b>.</p>
+<p class="note blue">Las clases tienen un orden natural: none &lt; low &lt; average &lt; good &lt; best.</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>3</p></div>
+</section>
+<section id="datos">
+<div class="head"><p class="kicker">Datos</p><h2>2. Datos de trabajo</h2></div>
+<div class="cards">
+<div class="card k-low"><h3 class="t-low">TRAIN · 70%</h3><p class="stat-sm">469 filas</p><p>Para aprender y para la validación cruzada.</p></div>
+<div class="card k-good"><h3 class="t-good">VALIDACIÓN · 15%</h3><p class="stat-sm">110 filas</p><p>Para medir el rendimiento del modelo elegido.</p></div>
+<div class="card k-best"><h3 class="t-best">TEST · 15%</h3><p class="stat-sm">No se lee</p><p>Se reserva para la comparación final en 06_conclusiones.</p></div>
+</div>
+<table class="tbl compact">
+<tr><th>Conjunto</th><th>none</th><th>low</th><th>average</th><th>good</th><th>best</th></tr>
+<tr><td>Train</td><td>80</td><td>75</td><td>91</td><td>150</td><td>73</td></tr>
+<tr><td>Validación</td><td>27</td><td>16</td><td>19</td><td>32</td><td>16</td></tr>
+</table>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>4</p></div>
+</section>
+<section id="modelo">
+<div class="head"><p class="kicker">Modelo</p><h2>3. ¿Qué hace un árbol de decisión?</h2></div>
+<p class="body">Un árbol hace <b>preguntas encadenadas</b> sobre las variables («¿vigor ≤ 3,05?») hasta llegar a una hoja que da la respuesta.</p>
+<div class="cards">
+<div class="card k-low"><p class="stat-sm t-low">1</p><h3>Pregunta</h3><p>Elige la pregunta que mejor separa las clases en cada paso.</p></div>
+<div class="card k-avg"><p class="stat-sm t-avg">2</p><h3>Divide</h3><p>Sí a la izquierda, no a la derecha, hasta que las hojas quedan «puras».</p></div>
+<div class="card k-good"><p class="stat-sm t-good">3</p><h3>Responde</h3><p>Cada hoja devuelve la clase mayoritaria de sus parcelas.</p></div>
+</div>
+<p class="note blue">Es el modelo más explicable de los cuatro: se puede dibujar y leer como reglas «si… entonces…».</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>5</p></div>
+</section>
+<section id="preprocesado">
+<div class="head"><p class="kicker">Preprocesado</p><h2>4. Variables y preparación de los datos</h2></div>
+<div class="grid2">
+<div class="card k-low"><h3>8 medidas numéricas</h3><p>Imputar con la mediana: faltan 22 valores de Surv y 1 de DBH en 469 filas.</p></div>
+<div class="card k-avg"><h3>Abbrev y Sp</h3><p>OrdinalEncoder: un número por categoría. Una especie nueva recibe −1 y el árbol no falla.</p></div>
+<div class="card k-none"><h3>Excluidas</h3><p>PMCno (lote de semillas) y Rep (réplica) son identificadores: el árbol los memorizaría.</p></div>
+<div class="card k-good"><h3>Sin escalar</h3><p>El árbol compara cada variable consigo misma, así que la escala no importa.</p></div>
+</div>
+<p class="note">Todo va dentro de un Pipeline que se ajusta solo con train, también dentro de cada fold de la validación cruzada.</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>6</p></div>
+</section>
+<section id="sin-medidas">
+<div class="head"><p class="kicker">Calidad de datos</p><h2>5. Una regla especial: parcelas sin medidas</h2></div>
+<div class="cards">
+<div class="card k-good"><h3 class="t-good">VALIDACIÓN</h3><p class="stat">15</p><p>parcelas sin ninguna medida: las 15 son de verdad none. En train hay 0.</p></div>
+<div class="card k-low"><h3 class="t-low">Cómo se mide</h3><p>Las métricas se dan sobre toda la validación (110) y aparte solo sobre las parcelas con medidas (95).</p></div>
+</div>
+<p class="body">Según la decisión <b>ADR-0001</b>, si faltan las seis medidas del árbol, se responde <b>none</b> sin llamar al modelo.</p>
+<p class="note">La regla acierta esas parcelas por construcción; no conviene mezclarlas con lo que aprende el árbol.</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>7</p></div>
+</section>
+<section id="baseline">
+<div class="head"><p class="kicker">Baseline</p><h2>6. Baseline: el mínimo que debemos superar</h2></div>
+<p class="body">Un <b>DummyClassifier</b> que responde siempre la clase más frecuente, good (y none a las parcelas sin medidas, por la regla).</p>
+<table class="tbl compact">
+<tr><th>Evaluación del Dummy</th><th>F1 macro</th><th>Accuracy</th></tr>
+<tr><td>Validación cruzada (train)</td><td>0,097</td><td>0,320</td></tr>
+<tr><td>Toda la validación</td><td>0,244</td><td>0,427</td></tr>
+<tr><td>Solo con medidas</td><td>0,101</td><td>0,337</td></tr>
+</table>
+<p class="note">Escala del equipo: menos de 10 puntos sobre el Dummy = no supera; de 10 a 25 = supera poco; 25 o más = supera claramente.</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>8</p></div>
+</section>
+<section id="arbol-libre">
+<div class="head"><p class="kicker">Sobreajuste</p><h2>7. Un árbol sin límites memoriza</h2></div>
+<div class="cards">
+<div class="card k-best"><h3>F1 train</h3><p class="stat t-best">1,00</p><p>Acierta el 100% de lo que ha visto.</p></div>
+<div class="card k-low"><h3>F1 CV</h3><p class="stat">0,540</p><p>Mucho menos en lo que no ha visto.</p></div>
+<div class="card k-best"><h3>Gap</h3><p class="stat t-bad">46</p><p>puntos: muy lejos del máximo de 5.</p></div>
+</div>
+<p class="body">Crece hasta <b>16 niveles y 139 hojas</b>, unas 3 parcelas por hoja: reglas a medida de una o dos parcelas. Con sitios nuevos el F1 cae a 0,403.</p>
+<p class="note">Aun así, 0,54 es cinco veces el Dummy: el árbol sí aprende, pero también aprende el ruido.</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>9</p></div>
+</section>
+<section id="curva">
+<div class="head"><p class="kicker">Sobreajuste</p><h2>8. Curva de complejidad: ¿cuánta profundidad?</h2></div>
+<table class="tbl small">
+<tr><th>Profundidad</th><th>F1 train</th><th>F1 CV</th><th>Gap (puntos)</th></tr>
+<tr><td>1</td><td>0,253</td><td>0,253</td><td><span class="ok">0,0</span></td></tr>
+<tr><td>2</td><td>0,445</td><td>0,419</td><td><span class="ok">2,6</span></td></tr>
+<tr><td>3</td><td>0,581</td><td>0,509</td><td><span class="bad">7,3</span></td></tr>
+<tr><td>4</td><td>0,622</td><td>0,506</td><td><span class="bad">11,6</span></td></tr>
+<tr><td>5</td><td>0,699</td><td>0,546</td><td><span class="bad">15,3</span></td></tr>
+<tr><td>7</td><td>0,819</td><td>0,565</td><td><span class="bad">25,4</span></td></tr>
+</table>
+<p class="note">La CV se estanca en torno a 0,55 mientras train sigue subiendo. Limitando solo la profundidad, solo cumplen árboles de 1 o 2 niveles, que se quedan cortos.</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>10</p></div>
+</section>
+<section id="rejilla">
+<div class="head"><p class="kicker">Ajuste</p><h2>9. Búsqueda de hiperparámetros</h2></div>
+<p class="body">Con <b>GridSearchCV</b> probamos 120 combinaciones de cuatro hiperparámetros.</p>
+<div class="grid2">
+<div class="card k-low"><h3 class="t-low">criterion</h3><p>gini o entropy: cómo mide lo mezcladas que quedan las clases.</p></div>
+<div class="card k-avg"><h3 class="t-avg">max_depth</h3><p>2, 3, 4, 5, 7 o sin límite.</p></div>
+<div class="card k-good"><h3 class="t-good">min_samples_leaf</h3><p>1, 5, 10, 20 o 30 parcelas mínimas por hoja.</p></div>
+<div class="card k-best"><h3 class="t-best">class_weight</h3><p>Ninguno o "balanced".</p></div>
+</div>
+<p class="note">Regla de elección: descartar gap &gt; 5 puntos, quedarse con el mayor F1 en CV y, en empate, el árbol más simple.</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>11</p></div>
+</section>
+<section id="eleccion">
+<div class="head"><p class="kicker">Ajuste</p><h2>10. La mejor nota no es el mejor modelo</h2></div>
+<table class="tbl compact">
+<tr><th></th><th>«A ciegas» (mayor F1)</th><th>Nuestra regla</th></tr>
+<tr><td>Árbol</td><td>entropy · sin límite · hojas de 1</td><td>entropy · profundidad 4 · hojas de 30</td></tr>
+<tr><td>F1 train</td><td>1,000</td><td>0,595</td></tr>
+<tr><td>F1 CV</td><td>0,566</td><td>0,565</td></tr>
+<tr><td>Gap</td><td><span class="bad">43,4 puntos</span></td><td><span class="ok">3,0 puntos</span></td></tr>
+</table>
+<p class="note">Casi el mismo F1, pero el árbol elegido tiene 4 niveles y 10 hojas (frente a 16 y 139): 14 veces más pequeño. 42 de las 120 combinaciones cumplen el gap.</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>12</p></div>
+</section>
+<section id="validacion">
+<div class="head"><p class="kicker">Validación</p><h2>11. Validación cruzada: al azar y por sitio</h2></div>
+<div class="cards">
+<div class="card k-low"><h3 class="t-low">StratifiedKFold</h3><p class="stat">0,565</p><p>F1 macro ± 0,025 · gap de CV 3,0 puntos. Reparte las parcelas al azar conservando las clases.</p></div>
+<div class="card k-best"><h3 class="t-best">StratifiedGroupKFold</h3><p class="stat t-best">0,519</p><p>F1 macro ± 0,110 · gap 6,6 puntos. Agrupa por sitio: el sitio de validación no se ha visto.</p></div>
+</div>
+<p class="note">Por sitio mejora mucho al árbol sin límites (0,52 frente a 0,40), pero sigue dependiendo del sitio y varía mucho entre folds.</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>13</p></div>
+</section>
+<section id="evaluacion">
+<div class="head"><p class="kicker">Resultados</p><h2>12. Evaluación en validación</h2></div>
+<div class="cards">
+<div class="card k-good"><h3>F1 macro · total</h3><p class="stat t-good">0,562</p><p>Toda la validación, incluida la regla none.</p></div>
+<div class="card k-low"><h3>F1 macro · medidas</h3><p class="stat">0,520</p><p>Solo las 95 parcelas que pasan por el árbol.</p></div>
+<div class="card k-avg"><h3>Gap</h3><p class="stat t-avg">3,6</p><p>puntos (0,557 en train): cumple el límite de 5.</p></div>
+</div>
+<p class="body">Supera al Dummy en +32 puntos (toda la validación) y +42 (con medidas). Accuracy: 0,636 y 0,579.</p>
+<p class="note">F1 de 0,565 en CV y 0,562 en validación: no hemos sobreajustado la elección de hiperparámetros.</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>14</p></div>
+</section>
+<section id="clases">
+<div class="head"><p class="kicker">Resultados</p><h2>13. ¿Qué clases reconoce mejor?</h2></div>
+<div class="cards">
+<div class="card k-none"><h3 class="t-none">none</h3><p class="stat-sm">F1 0,82</p><p>Recall 0,85</p></div>
+<div class="card k-low"><h3 class="t-low">low</h3><p class="stat-sm">F1 0,45</p><p>Recall 0,31</p></div>
+<div class="card k-avg"><h3 class="t-avg">average</h3><p class="stat-sm">F1 0,55</p><p>Recall 0,63</p></div>
+<div class="card k-good"><h3 class="t-good">good</h3><p class="stat-sm">F1 0,70</p><p>Recall 0,84</p></div>
+<div class="card k-best"><h3 class="t-best">best</h3><p class="stat-sm">F1 0,29</p><p>Recall 0,19</p></div>
+</div>
+<p class="body"><b>good</b> y <b>none</b> van bien. <b>best</b> es el gran problema: de 16 parcelas solo encuentra 3. Con las parcelas medidas, el F1 de none baja a 0,62.</p>
+<p class="note">Árbol «prudente»: precision macro 0,62 &gt; recall macro 0,53. Cuando dice best o low suele acertar, pero se atreve poco.</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>15</p></div>
+</section>
+<section id="reglas">
+<div class="head"><p class="kicker">Interpretación</p><h2>14. Las reglas del árbol</h2></div>
+<table class="tbl small">
+<tr><th>Si…</th><th>entonces</th></tr>
+<tr><td>vigor ≤ 1,4</td><td>none</td></tr>
+<tr><td>1,4 &lt; vigor ≤ 2,4 y altura ≤ 6,4 m</td><td>none</td></tr>
+<tr><td>1,4 &lt; vigor ≤ 2,4 y altura &gt; 6,4 m</td><td>low</td></tr>
+<tr><td>2,4 &lt; vigor ≤ 3,05 y sitio Wai o Wak</td><td>none</td></tr>
+<tr><td>2,4 &lt; vigor ≤ 3,05, otro sitio, altura ≤ 9,2 m</td><td>average</td></tr>
+<tr><td>2,4 &lt; vigor ≤ 3,05, otro sitio, altura &gt; 9,2 m</td><td>good</td></tr>
+<tr><td>vigor &gt; 3,05 y (copa ≤ 3,65 o supervivencia ≤ 68,5%)</td><td>good</td></tr>
+<tr class="pick"><td>vigor &gt; 3,05, copa &gt; 3,65 y supervivencia &gt; 68,5%</td><td>best</td></tr>
+</table>
+<p class="note">Ordena las clases casi como la escala, sin que nadie se lo diga. Ojo: la regla del sitio no sirve para sitios nuevos.</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>16</p></div>
+</section>
+<section id="importancia">
+<div class="head"><p class="kicker">Interpretación</p><h2>15. ¿Qué variables aportan más?</h2></div>
+<div class="bars">
+<div class="bar-row"><p class="bar-label">Vigor · Vig</p><div class="bar-track"><div class="bar-fill top" style="width:100%"></div></div><p class="bar-val">72%</p></div>
+<div class="bar-row"><p class="bar-label">Sitio · Abbrev</p><div class="bar-track"><div class="bar-fill" style="width:11%"></div></div><p class="bar-val">8%</p></div>
+<div class="bar-row"><p class="bar-label">Altura · Ht</p><div class="bar-track"><div class="bar-fill" style="width:11%"></div></div><p class="bar-val">8%</p></div>
+<div class="bar-row"><p class="bar-label">Copa · Crown_Fm</p><div class="bar-track"><div class="bar-fill" style="width:8%"></div></div><p class="bar-val">6%</p></div>
+<div class="bar-row"><p class="bar-label">Tallo · Stem_Fm</p><div class="bar-track"><div class="bar-fill" style="width:6%"></div></div><p class="bar-val">4%</p></div>
+</div>
+<p class="note blue">feature_importances_: cuánto ayudan las preguntas de cada variable a separar las clases. Surv aporta un 2%; Sp, DBH, Ins_res y Brnch_Fm no se usan.</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>17</p></div>
+</section>
+<section id="errores">
+<div class="head"><p class="kicker">Interpretación</p><h2>16. Análisis de errores</h2></div>
+<div class="cards">
+<div class="card k-low"><p class="stat">40</p><h3>errores de 95</h3><p>Parcelas con medidas mal clasificadas.</p></div>
+<div class="card k-good"><p class="stat t-good">33</p><h3>errores vecinos</h3><p>Acierta «la zona» de la escala, no el escalón.</p></div>
+<div class="card k-best"><p class="stat t-best">11</p><h3>best → good</h3><p>El error más frecuente.</p></div>
+</div>
+<p class="body">De las 13 parcelas best falladas, a 12 les falla la copa (≤ 3,65): hay parcelas con vigor 5 y supervivencia del 100% que se quedan en good.</p>
+<p class="note">La copa es el cuello de botella, no el vigor: llegar a best exige tres condiciones a la vez.</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>18</p></div>
+</section>
+<section id="guardar">
+<div class="head"><p class="kicker">Despliegue</p><h2>17. Guardar el modelo y requisitos</h2></div>
+<p class="body">Pipeline completo en <span class="mono">models/03_arbol_decision.joblib</span> (6,1 KB); recargado, predice igual (F1 0,562). La regla none se aplica fuera, con predecir_con_regla.</p>
+<table class="tbl compact">
+<tr><th>Requisito</th><th>Resultado</th><th>Cumple</th></tr>
+<tr><td>Multiclase (≥ 3 clases)</td><td>5 clases</td><td><span class="ok">Sí</span></td></tr>
+<tr><td>Overfitting &lt; 5 puntos</td><td>3,6 puntos</td><td><span class="ok">Sí</span></td></tr>
+<tr><td>Supera claramente al Dummy (con medidas)</td><td>+42 puntos</td><td><span class="ok">Sí</span></td></tr>
+<tr><td>Regla none sin medidas (ADR-0001)</td><td>15 parcelas</td><td><span class="ok">Sí</span></td></tr>
+<tr><td>StratifiedKFold + chequeo por sitio (ADR-0002)</td><td>0,565 / 0,519</td><td><span class="ok">Sí</span></td></tr>
+<tr><td>Pipeline guardado</td><td>03_arbol_decision.joblib</td><td><span class="ok">Sí</span></td></tr>
+</table>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>19</p></div>
+</section>
+<section id="conclusiones" class="dark">
+<div class="head"><p class="kicker">Conclusiones</p><h2>¿Qué nos llevamos del experimento?</h2></div>
+<ul class="list">
+<li>Árbol entropy, profundidad 4 y 30 parcelas por hoja (10 hojas): F1 macro 0,562 en validación (0,520 con medidas).</li>
+<li>Gap de 3,6 puntos: cumple todos los requisitos del proyecto.</li>
+<li>Muy interpretable: el vigor decide el 72% y las reglas se leen en una tabla.</li>
+<li>Limitaciones: casi nunca predice best (recall 0,19) y rinde peor con sitios nuevos.</li>
+<li>Entra en la comparación final de 06_conclusiones, donde se usa el test una sola vez.</li>
+</ul>
+<p class="note">Mensaje clave: meter la regla del sobreajuste dentro de la elección dio un árbol igual de bueno y 14 veces más pequeño.</p>
+<div class="footer"><p>ÁRBOL DE DECISIÓN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>20</p></div>
+</section>
+</div></div>
+<div id="notes"></div>
+<div id="bar">
+  <button id="prev" title="Anterior (←)">◀</button><span id="pos">1</span><button id="next" title="Siguiente (→)">▶</button>
+  <span class="sep"></span>
+  <button id="btn-notes" title="Notas del orador (N)">Notas</button>
+  <button id="btn-edit" title="Editar cualquier texto de las diapositivas">Editar texto</button>
+  <button id="btn-save" title="Descarga este HTML con tus cambios">Guardar mi versión</button>
+  <button id="btn-print" title="Imprimir o guardar como PDF">PDF</button>
+</div>
+<script>
+
+(function () {
+  var deck = document.getElementById('deck');
+  var slides = Array.prototype.slice.call(deck.children).filter(function (n) { return n.tagName === 'SECTION'; });
+  var pos = document.getElementById('pos');
+  var notes = document.getElementById('notes');
+  var cur = 0;
+
+  slides.forEach(function (s, i) { s.setAttribute('data-n', i + 1); });
+
+  var GEAR = 'M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z';
+  Array.prototype.forEach.call(deck.querySelectorAll('x-icon[name="Settings"]'), function (el) {
+    if (!el.querySelector('svg')) {
+      el.innerHTML = '<svg viewBox="0 0 24 24" width="100%" height="100%" fill="currentColor"><path d="' + GEAR + '"/></svg>';
+    }
+  });
+  Array.prototype.forEach.call(deck.querySelectorAll('a[href^="http"]'), function (a) { a.target = '_blank'; a.rel = 'noopener'; });
+
+  function show(i) {
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, k) { s.classList.toggle('active', k === cur); });
+    pos.textContent = (cur + 1) + ' / ' + slides.length;
+    var a = slides[cur].querySelector('aside');
+    notes.textContent = a ? a.textContent : '';
+    try { history.replaceState(null, '', '#' + (cur + 1)); } catch (e) {}
+  }
+  function fit() {
+    var s = Math.min(window.innerWidth / 1920, (window.innerHeight - 56) / 1080);
+    deck.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  }
+
+  // Placeholders de texto
+  Array.prototype.forEach.call(deck.querySelectorAll('.ph'), function (el) {
+    el.setAttribute('contenteditable', 'true');
+    el.addEventListener('focus', function () {
+      if (el.classList.contains('ph')) {
+        var r = document.createRange(); r.selectNodeContents(el);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      }
+    });
+    el.addEventListener('input', function () { el.classList.remove('ph'); });
+  });
+
+  // Placeholders de captura: clic, arrastrar o pegar
+  var picker = document.createElement('input');
+  picker.type = 'file'; picker.accept = 'image/*'; picker.style.display = 'none';
+  document.body.appendChild(picker);
+  var pickTarget = null, hoverBox = null;
+  function setImage(box, file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      box.innerHTML = '';
+      var img = new Image();
+      img.src = reader.result; img.alt = 'Captura';
+      img.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:12px';
+      box.appendChild(img);
+      box.style.padding = '0'; box.style.borderStyle = 'solid'; box.style.borderColor = 'transparent';
+    };
+    reader.readAsDataURL(file);
+  }
+  Array.prototype.forEach.call(deck.querySelectorAll('.shotbox'), function (box) {
+    box.tabIndex = 0;
+    box.title = 'Haz clic, arrastra una imagen o pega una captura (Ctrl+V)';
+    box.addEventListener('mouseenter', function () { hoverBox = box; });
+    box.addEventListener('mouseleave', function () { if (hoverBox === box) hoverBox = null; });
+    box.addEventListener('dragover', function (e) { e.preventDefault(); });
+    box.addEventListener('drop', function (e) {
+      e.preventDefault();
+      var f = e.dataTransfer.files[0];
+      if (f && f.type.indexOf('image') === 0) setImage(box, f);
+    });
+    box.addEventListener('click', function () { pickTarget = box; picker.value = ''; picker.click(); });
+  });
+  picker.addEventListener('change', function () {
+    if (picker.files[0] && pickTarget) setImage(pickTarget, picker.files[0]);
+  });
+  document.addEventListener('paste', function (e) {
+    var ae = document.activeElement;
+    var box = (ae && ae.closest && ae.closest('.shotbox')) || hoverBox;
+    if (!box || !e.clipboardData) return;
+    for (var i = 0; i < e.clipboardData.items.length; i++) {
+      var it = e.clipboardData.items[i];
+      if (it.type.indexOf('image') === 0) { setImage(box, it.getAsFile()); e.preventDefault(); break; }
+    }
+  });
+
+  // Navegación
+  document.getElementById('prev').onclick = function () { show(cur - 1); };
+  document.getElementById('next').onclick = function () { show(cur + 1); };
+  document.addEventListener('keydown', function (e) {
+    if (e.target && (e.target.isContentEditable || e.target.tagName === 'INPUT')) return;
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'PageDown' || k === ' ') { show(cur + 1); e.preventDefault(); }
+    else if (k === 'ArrowLeft' || k === 'PageUp') { show(cur - 1); e.preventDefault(); }
+    else if (k === 'Home') { show(0); }
+    else if (k === 'End') { show(slides.length - 1); }
+    else if (k === 'n' || k === 'N') { notes.classList.toggle('show'); }
+  });
+  window.addEventListener('resize', fit);
+  window.addEventListener('hashchange', function () { var n = parseInt(location.hash.slice(1), 10); if (n) show(n - 1); });
+
+  // Barra
+  document.getElementById('btn-notes').onclick = function () { notes.classList.toggle('show'); this.classList.toggle('on'); };
+  document.getElementById('btn-edit').onclick = function () {
+    var on = deck.getAttribute('contenteditable') !== 'true';
+    deck.setAttribute('contenteditable', on ? 'true' : 'false');
+    this.classList.toggle('on', on);
+  };
+  document.getElementById('btn-print').onclick = function () { window.print(); };
+  document.getElementById('btn-save').onclick = function () {
+    var wasOn = deck.getAttribute('contenteditable') === 'true';
+    deck.setAttribute('contenteditable', 'false');
+    var clone = document.documentElement.cloneNode(true);
+    var d = clone.querySelector('#deck'); d.removeAttribute('contenteditable');
+    var inputs = clone.querySelectorAll('input[type=file]'); Array.prototype.forEach.call(inputs, function (n) { n.remove(); });
+    var html = '<!doctype html>\n' + clone.outerHTML;
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+    a.download = decodeURIComponent(location.pathname.split('/').pop() || 'presentacion-eucalyptus.html');
+    document.body.appendChild(a); a.click(); a.remove();
+    if (wasOn) deck.setAttribute('contenteditable', 'true');
+  };
+
+  fit();
+  var start = parseInt(location.hash.slice(1), 10);
+  show(start ? start - 1 : 0);
+})();
+
+</script>
+</body>
+</html>

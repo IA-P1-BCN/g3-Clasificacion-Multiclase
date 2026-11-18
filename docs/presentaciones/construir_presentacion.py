@@ -17,26 +17,28 @@ a un fichero local con --imagen <id>=<ruta>.
 Uso:
     python docs/presentaciones/construir_presentacion.py CARPETA_FUENTE SALIDA.html \\
         --imagen <id>=docs/img/a_ausentes.png --imagen <id>=docs/img/c_vigor.png
+
+Sirve igual para la presentación completa y para las de cada modelo; no hace falta
+ninguna opción --imagen si las diapositivas no llevan imágenes.
 """
 
 import argparse
 import base64
 import json
+import re
 import sys
 from pathlib import Path
 
 ESTILOS_VISOR = """
 * { margin: 0; }
 p, li, h1, h2, h3, td, th { overflow-wrap: break-word; }
-table { border-collapse: separate; border-spacing: 0; border: solid #0003; border-width: 2px 0 0 2px; }
-th, td { padding: .35em .6em; text-align: left; border: solid #0003; border-width: 0 2px 2px 0; }
+table:not([class]) { border-collapse: separate; border-spacing: 0; border: solid #0003; border-width: 2px 0 0 2px; }
+table:not([class]) th, table:not([class]) td { padding: .35em .6em; text-align: left; border: solid #0003; border-width: 0 2px 2px 0; }
 html, body { margin: 0; height: 100%; background: #0B1A15; overflow: hidden; }
 #stage { position: fixed; inset: 0 0 56px 0; overflow: hidden; }
 #deck { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center center; }
-#deck > section { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; box-sizing: border-box; overflow: hidden; display: none; }
-#deck > section.active { display: block; }
-#deck > section::after { content: attr(data-n); }
-#deck > section.cover::before, #deck > section.cover::after { content: none; }
+#deck > section { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; box-sizing: border-box; overflow: hidden; }
+#deck > section:not(.active) { display: none !important; }
 aside { display: none; }
 x-shape, x-icon { display: block; }
 x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%, 58% 100%, 58% 72%, 0 72%); }
@@ -56,12 +58,21 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
   html, body { height: auto; overflow: visible; background: none; }
   #stage { position: static; overflow: visible; }
   #deck { position: static; transform: none !important; width: auto; height: auto; }
-  #deck > section { display: block !important; position: relative; break-after: page; page-break-after: always; }
+  #deck > section { display: var(--sec-display, block) !important; position: relative; break-after: page; page-break-after: always; }
   #bar, #notes { display: none !important; }
   .anim { animation: none !important; }
   @page { size: 1920px 1080px; margin: 0; }
 }
 """
+
+# Solo se añade si los estilos de la presentación numeran las páginas con un contador CSS.
+ESTILOS_CONTADOR = """
+#deck > section::after { content: attr(data-n); }
+#deck > section.cover::before, #deck > section.cover::after { content: none; }
+"""
+
+# Las diapositivas se ocultan con display:none; en impresión hay que devolverles su display.
+ESTILOS_DISPLAY_FLEX = ":root { --sec-display: flex; }"
 
 SCRIPT_VISOR = r"""
 (function () {
@@ -181,7 +192,7 @@ SCRIPT_VISOR = r"""
     var html = '<!doctype html>\n' + clone.outerHTML;
     var a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
-    a.download = 'presentacion-eucalyptus.html';
+    a.download = decodeURIComponent(location.pathname.split('/').pop() || 'presentacion-eucalyptus.html');
     document.body.appendChild(a); a.click(); a.remove();
     if (wasOn) deck.setAttribute('contenteditable', 'true');
   };
@@ -267,11 +278,21 @@ def incrustar_imagenes(cuerpo, imagenes):
     return cuerpo
 
 
+def estilos_del_visor(css):
+    """Estilos del visor, ajustados a cómo maqueta la presentación (contador de páginas y display)."""
+    estilos = ESTILOS_VISOR
+    if "counter(page)" in css:
+        estilos += ESTILOS_CONTADOR
+    if re.search(r"(^|\n)section\s*\{[^}]*display:\s*flex", css):
+        estilos += ESTILOS_DISPLAY_FLEX
+    return estilos
+
+
 def componer_pagina(titulo, css, cuerpo):
     return PLANTILLA_PAGINA.format(
         titulo=titulo,
         css=css,
-        estilos_visor=ESTILOS_VISOR,
+        estilos_visor=estilos_del_visor(css),
         cuerpo=cuerpo,
         script_visor=SCRIPT_VISOR,
     )

@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modelo KNN: utilidad de parcelas de eucalipto</title>
+<!-- Presentación autónoma. Flechas o espacio para moverse, N para las notas del orador.
+     Rellenar los recuadros: clic en el texto entre corchetes para escribir; clic, arrastrar o pegar (Ctrl+V)
+     una imagen en los recuadros de captura. «Guardar mi versión» descarga este mismo fichero con los cambios. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&family=Inter:wght@400;600&display=swap">
+<style>
+section {
+  background: #F5F8FB;
+  color: #12233A;
+  font-family: 'Inter', sans-serif;
+  padding: 128px 128px 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+section h1, section h2, section h3, section p, section ul, section ol, section table { margin: 0; }
+section.dark { background: #12233A; color: #F2F6FA; }
+section.dark.center { justify-content: center; }
+
+/* Encabezado de cada diapositiva */
+.head { display: flex; flex-direction: column; gap: 16px; }
+.kicker { font-size: 24px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #1A7871; }
+h1 { font-family: 'Space Grotesk', sans-serif; font-size: 96px; line-height: 1.05; font-weight: 700; color: #F2F6FA; }
+h2 { font-family: 'Space Grotesk', sans-serif; font-size: 64px; line-height: 1.1; font-weight: 700; color: #12233A; }
+.rule { width: 96px; height: 8px; background: #239189; border-radius: 4px; }
+
+/* Texto */
+.lead { font-size: 36px; font-weight: 600; line-height: 1.35; color: #12233A; }
+.body { font-size: 30px; line-height: 1.45; color: #2B3D52; }
+.list { font-size: 32px; line-height: 1.4; color: #2B3D52; padding-left: 40px; display: flex; flex-direction: column; gap: 20px; }
+.mono { font-family: monospace; font-weight: 600; color: #1D5A8E; }
+
+/* Tarjetas */
+.cards { display: flex; gap: 32px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.card { flex: 1; background: #FFFFFF; border: 2px solid #D3DEE8; border-radius: 20px; padding: 36px 40px; display: flex; flex-direction: column; gap: 12px; }
+.card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; line-height: 1.2; color: #12233A; }
+.card p { font-size: 26px; line-height: 1.4; color: #3A4B5F; }
+.card .stat { font-family: 'Space Grotesk', sans-serif; font-size: 88px; font-weight: 700; line-height: 1; color: #2467A0; }
+.card .stat-sm { font-family: 'Space Grotesk', sans-serif; font-size: 44px; font-weight: 700; line-height: 1.1; color: #12233A; }
+.card .steps { font-size: 28px; line-height: 1.4; color: #2B3D52; padding-left: 36px; display: flex; flex-direction: column; gap: 12px; }
+
+/* Colores de las cinco clases de Utility */
+.card.k-none { border-top: 10px solid #6B7B8D; }
+.card.k-low { border-top: 10px solid #2467A0; }
+.card.k-avg { border-top: 10px solid #4A79B8; }
+.card.k-good { border-top: 10px solid #239189; }
+.card.k-best { border-top: 10px solid #D98A1C; }
+.card .t-none { color: #55657A; }
+.card .t-low { color: #2467A0; }
+.card .t-avg { color: #3A68A6; }
+.card .t-good { color: #1A7871; }
+.card .t-best { color: #A35A00; }
+.card .t-bad { color: #B3261E; }
+
+/* Destacado */
+.note { background: #E4F1F0; border-left: 8px solid #239189; border-radius: 0 12px 12px 0; padding: 28px 40px; font-size: 28px; line-height: 1.4; font-weight: 600; color: #12233A; }
+.note.blue { background: #E6EEF7; border-left-color: #2467A0; }
+
+/* Agenda */
+.rows { display: flex; flex-direction: column; }
+.row { display: flex; gap: 40px; align-items: baseline; padding: 20px 0; border-top: 2px solid #D3DEE8; }
+.row .n { width: 72px; font-family: 'Space Grotesk', sans-serif; font-size: 40px; font-weight: 700; color: #1A7871; }
+.row .t { width: 360px; font-size: 34px; font-weight: 700; color: #12233A; }
+.row .d { flex: 1; font-size: 28px; line-height: 1.35; color: #3A4B5F; }
+
+/* Tabla de hiperparámetros */
+.tbl { width: 100%; border-collapse: collapse; font-size: 32px; }
+.tbl th { text-align: left; font-size: 24px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #55657A; padding: 16px 28px; border-bottom: 3px solid #12233A; }
+.tbl td { padding: 26px 28px; border-bottom: 2px solid #D3DEE8; color: #12233A; }
+.tbl tr.pick td { background: #E4F1F0; font-weight: 700; }
+.ok { color: #1A7871; font-weight: 700; }
+.bad { color: #B3261E; font-weight: 700; }
+
+/* Barras de importancia */
+.bars { display: flex; flex-direction: column; gap: 32px; }
+.bar-row { display: flex; align-items: center; gap: 32px; }
+.bar-label { width: 420px; font-size: 30px; font-weight: 600; color: #12233A; }
+.bar-track { flex: 1; height: 44px; background: #E3EAF1; border-radius: 8px; display: flex; }
+.bar-fill { height: 44px; background: #2467A0; border-radius: 8px; transform-origin: left center; animation: grow 0.7s ease-out 0.2s both; }
+.bar-fill.top { background: #239189; }
+.bar-val { width: 120px; font-size: 32px; font-weight: 700; text-align: right; color: #12233A; }
+
+/* Pie de página */
+.footer { position: absolute; left: 128px; bottom: 64px; width: 1664px; display: flex; justify-content: space-between; }
+.footer p { font-size: 24px; letter-spacing: 0.08em; color: #6A7A8C; }
+
+/* Variantes oscuras */
+.dark .kicker { color: #5CC6BD; }
+.dark h2 { color: #F2F6FA; }
+.dark .body { color: #C9D5E2; }
+.dark .list { color: #E3EBF3; }
+.dark .note { background: #1C3452; border-left-color: #5CC6BD; color: #F2F6FA; }
+.dark .footer p { color: #8EA1B6; }
+.cover-sub { font-size: 40px; line-height: 1.35; color: #C9D5E2; width: 1300px; }
+.cover-meta { font-size: 28px; color: #9FB0C3; }
+
+/* Movimiento: entrada escalonada de tarjetas y filas */
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } }
+@keyframes grow { from { transform: scaleX(0); } }
+.cards > div, .grid2 > div, .rows > div, .bar-row, .note { animation: rise 0.5s ease-out both; }
+.cards > div:nth-child(2), .grid2 > div:nth-child(2), .rows > div:nth-child(2), .bar-row:nth-child(2) { animation-delay: 0.08s; }
+.cards > div:nth-child(3), .grid2 > div:nth-child(3), .rows > div:nth-child(3), .bar-row:nth-child(3) { animation-delay: 0.16s; }
+.cards > div:nth-child(4), .grid2 > div:nth-child(4), .rows > div:nth-child(4), .bar-row:nth-child(4) { animation-delay: 0.24s; }
+.cards > div:nth-child(5), .rows > div:nth-child(5), .bar-row:nth-child(5) { animation-delay: 0.32s; }
+.note { animation-delay: 0.4s; }
+.tbl.compact td { padding: 18px 28px; }
+.tbl tr.dim td { color: #55657A; }
+
+
+* { margin: 0; }
+p, li, h1, h2, h3, td, th { overflow-wrap: break-word; }
+table:not([class]) { border-collapse: separate; border-spacing: 0; border: solid #0003; border-width: 2px 0 0 2px; }
+table:not([class]) th, table:not([class]) td { padding: .35em .6em; text-align: left; border: solid #0003; border-width: 0 2px 2px 0; }
+html, body { margin: 0; height: 100%; background: #0B1A15; overflow: hidden; }
+#stage { position: fixed; inset: 0 0 56px 0; overflow: hidden; }
+#deck { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center center; }
+#deck > section { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; box-sizing: border-box; overflow: hidden; }
+#deck > section:not(.active) { display: none !important; }
+aside { display: none; }
+x-shape, x-icon { display: block; }
+x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%, 58% 100%, 58% 72%, 0 72%); }
+.shotbox { cursor: pointer; }
+.shotbox:hover { border-color: #1F7A58; }
+.ph[contenteditable="true"] { outline: none; cursor: text; }
+.ph[contenteditable="true"]:hover, .ph[contenteditable="true"]:focus { background: #CFE6DA; border-radius: 6px; }
+#bar { position: fixed; left: 0; right: 0; bottom: 0; height: 56px; display: flex; align-items: center; justify-content: center; gap: 10px; background: #10241E; color: #E9EFE9; font: 600 16px/1 Inter, Arial, sans-serif; z-index: 10; }
+#bar button { font: inherit; color: #E9EFE9; background: #1B3A30; border: 1px solid #2F5A4A; border-radius: 8px; padding: 9px 14px; cursor: pointer; }
+#bar button:hover { background: #24503F; }
+#bar button.on { background: #1F7A58; }
+#bar .sep { width: 1px; height: 24px; background: #2F5A4A; margin: 0 6px; }
+#pos { min-width: 70px; text-align: center; }
+#notes { position: fixed; left: 0; right: 0; bottom: 56px; max-height: 28vh; overflow: auto; padding: 14px 24px; background: rgba(16, 36, 30, .96); color: #E9EFE9; font: 400 20px/1.4 Inter, Arial, sans-serif; display: none; z-index: 9; }
+#notes.show { display: block; }
+@media print {
+  html, body { height: auto; overflow: visible; background: none; }
+  #stage { position: static; overflow: visible; }
+  #deck { position: static; transform: none !important; width: auto; height: auto; }
+  #deck > section { display: var(--sec-display, block) !important; position: relative; break-after: page; page-break-after: always; }
+  #bar, #notes { display: none !important; }
+  .anim { animation: none !important; }
+  @page { size: 1920px 1080px; margin: 0; }
+}
+:root { --sec-display: flex; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="deck">
+<section id="portada" class="dark center" data-transition="fade">
+<p class="kicker">Proyecto de Machine Learning</p>
+<h1>Modelo KNN:<br>utilidad de parcelas de eucalipto</h1>
+<p class="cover-sub">Cómo clasificamos parcelas en cinco niveles mirando a sus vecinos más parecidos</p>
+<div class="rule"></div>
+<p class="cover-meta">Notebook 05_knn.ipynb  ·  Dataset Eucalyptus</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>1</p></div>
+</section>
+<section id="agenda">
+<div class="head"><p class="kicker">Introducción</p><h2>Qué vamos a explicar</h2></div>
+<div class="rows">
+<div class="row"><p class="n">01</p><p class="t">El problema</p><p class="d">Qué significa predecir la utilidad de una parcela.</p></div>
+<div class="row"><p class="n">02</p><p class="t">Datos y KNN</p><p class="d">Qué recibe el modelo y cómo decide por vecindad.</p></div>
+<div class="row"><p class="n">03</p><p class="t">Variables y baseline</p><p class="d">Qué variables usamos y el mínimo que hay que superar.</p></div>
+<div class="row"><p class="n">04</p><p class="t">Ajuste</p><p class="d">Cómo elegimos k, el tipo de voto y la distancia.</p></div>
+<div class="row"><p class="n">05</p><p class="t">Resultados</p><p class="d">Qué acierta, dónde se equivoca y qué aprendemos.</p></div>
+</div>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>2</p></div>
+</section>
+<section id="problema">
+<div class="head"><p class="kicker">Problema</p><h2>1. El problema: clasificar la utilidad</h2></div>
+<p class="lead">Queremos predecir la variable objetivo <b>Utility</b> para cada parcela de eucalipto.</p>
+<div class="cards">
+<div class="card k-none"><h3 class="t-none">none</h3><p>Sin utilidad</p></div>
+<div class="card k-low"><h3 class="t-low">low</h3><p>Baja</p></div>
+<div class="card k-avg"><h3 class="t-avg">average</h3><p>Media</p></div>
+<div class="card k-good"><h3 class="t-good">good</h3><p>Buena</p></div>
+<div class="card k-best"><h3 class="t-best">best</h3><p>Muy buena</p></div>
+</div>
+<p class="body">Es un problema de <b>clasificación multiclase</b>: asignamos a cada parcela una de cinco etiquetas.</p>
+<p class="note blue">Las clases tienen un orden natural: none &lt; low &lt; average &lt; good &lt; best.</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>3</p></div>
+</section>
+<section id="datos">
+<div class="head"><p class="kicker">Datos</p><h2>2. Datos de trabajo</h2></div>
+<div class="cards">
+<div class="card k-low"><h3 class="t-low">TRAIN</h3><p class="stat-sm">469 filas</p><p>Para aprender y para la validación cruzada.</p></div>
+<div class="card k-good"><h3 class="t-good">VALIDACIÓN</h3><p class="stat-sm">110 filas</p><p>Para medir el rendimiento del modelo elegido.</p></div>
+<div class="card k-best"><h3 class="t-best">TEST</h3><p class="stat-sm">No se lee</p><p>Se reserva para la comparación final en 06_conclusiones.</p></div>
+</div>
+<table class="tbl compact">
+<tr><th>Conjunto</th><th>none</th><th>low</th><th>average</th><th>good</th><th>best</th></tr>
+<tr><td>Train</td><td>80</td><td>75</td><td>91</td><td>150</td><td>73</td></tr>
+<tr><td>Validación</td><td>27</td><td>16</td><td>19</td><td>32</td><td>16</td></tr>
+</table>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>4</p></div>
+</section>
+<section id="knn">
+<div class="head"><p class="kicker">Modelo</p><h2>3. ¿Qué hace un KNN?</h2></div>
+<p class="body"><b>KNN</b> significa k-Nearest Neighbors (k vecinos más cercanos). No construye fronteras: guarda las parcelas de entrenamiento y decide por parecido.</p>
+<div class="cards">
+<div class="card k-low"><p class="stat-sm t-low">1</p><h3>Guarda</h3><p>Memoriza las parcelas de train con su clase.</p></div>
+<div class="card k-avg"><p class="stat-sm t-avg">2</p><h3>Mide distancias</h3><p>Para una parcela nueva, busca las k parcelas más parecidas.</p></div>
+<div class="card k-good"><p class="stat-sm t-good">3</p><h3>Vota</h3><p>Los k vecinos votan y gana la clase con más votos.</p></div>
+</div>
+<p class="note blue">Como decide por distancia, todas las variables deben estar en la misma escala: si no, la que tenga números más grandes domina el cálculo.</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>5</p></div>
+</section>
+<section id="variables">
+<div class="head"><p class="kicker">Preprocesado</p><h2>4. Variables y preparación de los datos</h2></div>
+<div class="grid2">
+<div class="card k-low"><h3>9 variables del modelo</h3><p>DBH, Ht, Surv, Vig, Ins_res, Stem_Fm, Crown_Fm, Brnch_Fm y el sitio Abbrev.</p></div>
+<div class="card k-none"><h3>Excluidas</h3><p>Rep y PMCno son identificadores. Sp tiene 25 especies: añadiría 25 columnas dispersas que distorsionan las distancias.</p></div>
+<div class="card k-avg"><h3>Numéricas</h3><p>Imputar ausentes con la mediana y estandarizar.</p></div>
+<div class="card k-good"><h3>Categórica: Abbrev</h3><p>Imputar con la categoría más frecuente y one-hot encoding.</p></div>
+</div>
+<p class="note">Todo va dentro de un Pipeline que se ajusta solo con train, para evitar fuga de información.</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>6</p></div>
+</section>
+<section id="comparar-variables">
+<div class="head"><p class="kicker">Variables</p><h2>5. ¿Merece la pena cambiar las variables?</h2></div>
+<p class="body">F1 macro de validación cruzada (solo con train) para tres conjuntos de variables y dos valores de k.</p>
+<table class="tbl compact">
+<tr><th>Conjunto de variables</th><th>k = 11</th><th>k = 41</th></tr>
+<tr class="pick"><td>Actuales (9 variables)</td><td>0,562</td><td>0,533</td></tr>
+<tr><td>Con Sp (+25 columnas)</td><td>0,544</td><td>0,503</td></tr>
+<tr><td>Sin DBH ni Brnch_Fm</td><td>0,540</td><td>0,549</td></tr>
+</table>
+<p class="note">Regla: solo se cambia si la mejora supera la desviación entre folds (≈ 0,04–0,06). Ninguna lo hace: se mantienen las 9 variables.</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>7</p></div>
+</section>
+<section id="sin-medidas">
+<div class="head"><p class="kicker">Calidad de datos</p><h2>6. Una regla especial: parcelas sin medidas</h2></div>
+<div class="cards">
+<div class="card k-good"><h3 class="t-good">VALIDACIÓN</h3><p class="stat">15</p><p>parcelas sin ninguna medida: las 15 son de verdad none.</p></div>
+<div class="card k-low"><h3 class="t-low">Cómo se mide</h3><p>Las métricas se dan sobre toda la validación (110) y aparte solo sobre las parcelas con medidas (95).</p></div>
+</div>
+<p class="body">Según la decisión <b>ADR-0001</b>, si faltan las seis medidas (Surv, Vig, Ins_res, Stem_Fm, Crown_Fm, Brnch_Fm), se responde <b>none</b> sin llamar al modelo.</p>
+<p class="note">La regla acierta esas parcelas por construcción; por eso no conviene mezclarlas con lo que aprende el KNN.</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>8</p></div>
+</section>
+<section id="baseline">
+<div class="head"><p class="kicker">Baseline</p><h2>7. Baseline: el mínimo que debemos superar</h2></div>
+<p class="body">Un <b>DummyClassifier</b> que responde siempre la clase más frecuente, good (y none a las parcelas sin medidas, por la regla).</p>
+<table class="tbl compact">
+<tr><th>Evaluación del Dummy</th><th>F1 macro</th><th>Accuracy</th></tr>
+<tr><td>Validación cruzada (train)</td><td>0,097</td><td>0,320</td></tr>
+<tr><td>Toda la validación</td><td>0,244</td><td>0,427</td></tr>
+<tr><td>Solo con medidas</td><td>0,101</td><td>0,337</td></tr>
+</table>
+<p class="note">La accuracy engaña: el Dummy acierta todas las good y ninguna otra. Por eso la métrica principal es F1 macro, que da el mismo peso a las cinco clases.</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>9</p></div>
+</section>
+<section id="rejilla">
+<div class="head"><p class="kicker">Ajuste</p><h2>8. Búsqueda de hiperparámetros</h2></div>
+<p class="body">Con <b>GridSearchCV</b>, StratifiedKFold de 5 folds y F1 macro probamos 48 combinaciones de tres ajustes.</p>
+<div class="cards">
+<div class="card k-low"><h3 class="t-low">n_neighbors (k)</h3><p>Cuántos vecinos votan. De 3 a 101: pocos vecinos son sensibles al ruido; muchos suavizan.</p></div>
+<div class="card k-avg"><h3 class="t-avg">weights</h3><p>uniform (todos votan igual) o distance (los cercanos pesan más).</p></div>
+<div class="card k-good"><h3 class="t-good">p</h3><p>Tipo de distancia: Manhattan (1) o euclídea (2).</p></div>
+</div>
+<p class="note">El primer rango llegaba hasta k = 31 y el ganador quedó en el borde, así que se añadieron 41, 51, 71 y 101.</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>10</p></div>
+</section>
+<section id="eleccion">
+<div class="head"><p class="kicker">Ajuste</p><h2>9. Elegir sin sobreajuste</h2></div>
+<div class="cards">
+<div class="card k-best"><h3>weights = distance</h3><p class="stat-sm t-bad">Gap ≈ 43 puntos</p><p>Cada parcela de train es su propio vecino a distancia 0: F1 de train = 1,0. Memoriza, no generaliza.</p></div>
+<div class="card k-good"><h3>Modelo elegido</h3><p class="stat-sm t-good">k = 41</p><p>Voto uniforme y distancia Manhattan (p = 1).</p><p>8 de las 48 combinaciones tienen gap de CV menor de 5 puntos.</p></div>
+</div>
+<p class="note">Regla del equipo: entre las combinaciones con gap de CV menor de 5 puntos, la de mayor F1 macro.</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>11</p></div>
+</section>
+<section id="validacion">
+<div class="head"><p class="kicker">Validación</p><h2>10. Validación cruzada: al azar y por sitio</h2></div>
+<div class="cards">
+<div class="card k-low"><h3 class="t-low">StratifiedKFold</h3><p class="stat">0,533</p><p>F1 macro ± 0,046 · gap de CV 2,1 puntos. Reparte las parcelas al azar conservando las clases.</p></div>
+<div class="card k-best"><h3 class="t-best">StratifiedGroupKFold</h3><p class="stat t-best">0,492</p><p>F1 macro ± 0,114. Agrupa por sitio (Abbrev): el sitio de validación no se ha visto en train.</p></div>
+</div>
+<p class="note">ADR-0002: ver parcelas del mismo sitio ayuda, así que la nota común está algo inflada. Por sitio varía mucho entre folds (de 0,33 a 0,66).</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>12</p></div>
+</section>
+<section id="evaluacion">
+<div class="head"><p class="kicker">Resultados</p><h2>11. Evaluación en validación</h2></div>
+<div class="cards">
+<div class="card k-good"><h3>F1 macro · total</h3><p class="stat t-good">0,552</p><p>Toda la validación, incluida la regla none.</p></div>
+<div class="card k-low"><h3>F1 macro · medidas</h3><p class="stat">0,524</p><p>Solo las 95 parcelas que pasan por el KNN.</p></div>
+<div class="card k-avg"><h3>Frente al Dummy</h3><p class="stat t-avg">+31</p><p>puntos en toda la validación; +42 solo con medidas.</p></div>
+</div>
+<p class="body">Accuracy: 0,645 en toda la validación y 0,589 solo con medidas. En validación cruzada el KNN supera al Dummy en unos 44 puntos (0,533 frente a 0,097).</p>
+<p class="note">En los tres casos supera claramente al baseline (25 puntos o más).</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>13</p></div>
+</section>
+<section id="sobreajuste">
+<div class="head"><p class="kicker">Sobreajuste</p><h2>12. Control de sobreajuste</h2></div>
+<div class="cards">
+<div class="card k-low"><h3>F1 train</h3><p class="stat">0,578</p><p>Modelo entrenado con todo train.</p></div>
+<div class="card k-good"><h3>F1 validación con medidas</h3><p class="stat t-good">0,524</p><p>Solo parcelas que pasan por el modelo.</p></div>
+<div class="card k-best"><h3>Gap</h3><p class="stat t-bad">5,4</p><p>puntos: no cumple el límite de 5 por 0,4.</p></div>
+</div>
+<p class="body">En validación cruzada el gap es solo de 2,1 puntos. El exceso se atribuye al ruido de una validación de 95 parcelas, no a memorización. No se retocó el modelo mirando la validación.</p>
+<p class="note">Se documenta como hallazgo: KNN no tiene regularización y es el candidato menos fiable para este dataset.</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>14</p></div>
+</section>
+<section id="clases">
+<div class="head"><p class="kicker">Resultados</p><h2>13. ¿Qué clases reconoce mejor?</h2></div>
+<div class="cards">
+<div class="card k-none"><h3 class="t-none">none</h3><p class="stat-sm">F1 0,90</p><p>Recall 0,85</p></div>
+<div class="card k-low"><h3 class="t-low">low</h3><p class="stat-sm">F1 0,57</p><p>Recall 0,50</p></div>
+<div class="card k-avg"><h3 class="t-avg">average</h3><p class="stat-sm">F1 0,46</p><p>Recall 0,47</p></div>
+<div class="card k-good"><h3 class="t-good">good</h3><p class="stat-sm">F1 0,71</p><p>Recall 0,94</p></div>
+<div class="card k-best"><h3 class="t-best">best</h3><p class="stat-sm">F1 0,11</p><p>Recall 0,06</p></div>
+</div>
+<p class="body"><b>none</b> y <b>good</b> van bien. <b>best</b> casi nunca se encuentra: solo 1 de 16. Con las parcelas medidas, el recall de none baja a 0,67.</p>
+<p class="note">Con k = 41, el voto lo ganan las clases mayoritarias del entorno: good es la más numerosa y best queda siempre en minoría.</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>15</p></div>
+</section>
+<section id="errores">
+<div class="head"><p class="kicker">Interpretación</p><h2>14. Análisis de errores</h2></div>
+<div class="cards">
+<div class="card k-low"><p class="stat">39</p><h3>errores de 110</h3><p>El 35,5% de la validación.</p></div>
+<div class="card k-best"><p class="stat t-best">15</p><h3>best → good</h3><p>El error más repetido: 15 de las 16 parcelas best.</p></div>
+<div class="card k-good"><p class="stat t-good">6%</p><h3>error en good</h3><p>Frente al 94% de error en best.</p></div>
+</div>
+<p class="body">Le siguen average (10 de 19) y low (8 de 16), que se confunden con sus clases vecinas. Casi todos los errores saltan una sola clase.</p>
+<p class="note">Cuando duda, el modelo responde good, la clase más común: por eso acierta mucho good y pierde best.</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>16</p></div>
+</section>
+<section id="importancia">
+<div class="head"><p class="kicker">Interpretación</p><h2>15. ¿Qué variables aportan más?</h2></div>
+<div class="bars">
+<div class="bar-row"><p class="bar-label">Vigor · Vig</p><div class="bar-track"><div class="bar-fill top" style="width:100%"></div></div><p class="bar-val">0,14</p></div>
+<div class="bar-row"><p class="bar-label">Supervivencia · Surv</p><div class="bar-track"><div class="bar-fill" style="width:64%"></div></div><p class="bar-val">0,09</p></div>
+</div>
+<p class="body">El resto de variables queda dentro del ruido; Brnch_Fm incluso sale negativa. Encaja con cómo funciona KNN: todas las variables pesan igual en la distancia, aunque no aporten.</p>
+<p class="note blue">KNN no da importancia nativa: se usa permutation importance sobre la validación con medidas (cuánto cae el F1 macro al desordenar cada variable).</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>17</p></div>
+</section>
+<section id="guardar">
+<div class="head"><p class="kicker">Despliegue</p><h2>16. Guardar el modelo y requisitos</h2></div>
+<p class="body">Se guarda el Pipeline completo en <span class="mono">models/05_knn.joblib</span> (≈ 89 KB); al recargarlo predice igual. Las cifras van a <span class="mono">resultados/05_knn.json</span> para 06_conclusiones.</p>
+<table class="tbl compact">
+<tr><th>Requisito</th><th>Resultado</th><th>Cumple</th></tr>
+<tr><td>Multiclase (≥ 3 clases)</td><td>5 clases</td><td><span class="ok">Sí</span></td></tr>
+<tr><td>Overfitting &lt; 5 puntos</td><td>5,4 puntos</td><td><span class="bad">No</span></td></tr>
+<tr><td>Supera claramente al Dummy (con medidas)</td><td>+42 puntos</td><td><span class="ok">Sí</span></td></tr>
+<tr><td>Regla none sin medidas (ADR-0001)</td><td>15 parcelas</td><td><span class="ok">Sí</span></td></tr>
+<tr><td>StratifiedKFold + chequeo por sitio (ADR-0002)</td><td>0,533 / 0,492</td><td><span class="ok">Sí</span></td></tr>
+<tr><td>Pipeline guardado</td><td>models/05_knn.joblib</td><td><span class="ok">Sí</span></td></tr>
+</table>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>18</p></div>
+</section>
+<section id="conclusiones" class="dark">
+<div class="head"><p class="kicker">Conclusiones</p><h2>¿Qué nos llevamos del experimento?</h2></div>
+<ul class="list">
+<li>KNN con k = 41, voto uniforme y distancia Manhattan: F1 macro 0,552 en validación (0,524 solo con medidas).</li>
+<li>Supera claramente al Dummy: +44 puntos en CV, +31 en toda la validación y +42 con medidas.</li>
+<li>Gap de 5,4 puntos: no cumple el criterio por 0,4; en CV el gap es solo de 2,1.</li>
+<li>La señal viene de Vig y Surv; el resto de variables apenas aporta.</li>
+<li>Su gran limitación es best: se predice como good en 15 de 16 casos.</li>
+</ul>
+<p class="note">Mensaje clave: KNN aprende, pero es el candidato menos fiable para este dataset. El test se evaluará una sola vez en 06_conclusiones.</p>
+<div class="footer"><p>MODELO KNN · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>19</p></div>
+</section>
+</div></div>
+<div id="notes"></div>
+<div id="bar">
+  <button id="prev" title="Anterior (←)">◀</button><span id="pos">1</span><button id="next" title="Siguiente (→)">▶</button>
+  <span class="sep"></span>
+  <button id="btn-notes" title="Notas del orador (N)">Notas</button>
+  <button id="btn-edit" title="Editar cualquier texto de las diapositivas">Editar texto</button>
+  <button id="btn-save" title="Descarga este HTML con tus cambios">Guardar mi versión</button>
+  <button id="btn-print" title="Imprimir o guardar como PDF">PDF</button>
+</div>
+<script>
+
+(function () {
+  var deck = document.getElementById('deck');
+  var slides = Array.prototype.slice.call(deck.children).filter(function (n) { return n.tagName === 'SECTION'; });
+  var pos = document.getElementById('pos');
+  var notes = document.getElementById('notes');
+  var cur = 0;
+
+  slides.forEach(function (s, i) { s.setAttribute('data-n', i + 1); });
+
+  var GEAR = 'M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z';
+  Array.prototype.forEach.call(deck.querySelectorAll('x-icon[name="Settings"]'), function (el) {
+    if (!el.querySelector('svg')) {
+      el.innerHTML = '<svg viewBox="0 0 24 24" width="100%" height="100%" fill="currentColor"><path d="' + GEAR + '"/></svg>';
+    }
+  });
+  Array.prototype.forEach.call(deck.querySelectorAll('a[href^="http"]'), function (a) { a.target = '_blank'; a.rel = 'noopener'; });
+
+  function show(i) {
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, k) { s.classList.toggle('active', k === cur); });
+    pos.textContent = (cur + 1) + ' / ' + slides.length;
+    var a = slides[cur].querySelector('aside');
+    notes.textContent = a ? a.textContent : '';
+    try { history.replaceState(null, '', '#' + (cur + 1)); } catch (e) {}
+  }
+  function fit() {
+    var s = Math.min(window.innerWidth / 1920, (window.innerHeight - 56) / 1080);
+    deck.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  }
+
+  // Placeholders de texto
+  Array.prototype.forEach.call(deck.querySelectorAll('.ph'), function (el) {
+    el.setAttribute('contenteditable', 'true');
+    el.addEventListener('focus', function () {
+      if (el.classList.contains('ph')) {
+        var r = document.createRange(); r.selectNodeContents(el);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      }
+    });
+    el.addEventListener('input', function () { el.classList.remove('ph'); });
+  });
+
+  // Placeholders de captura: clic, arrastrar o pegar
+  var picker = document.createElement('input');
+  picker.type = 'file'; picker.accept = 'image/*'; picker.style.display = 'none';
+  document.body.appendChild(picker);
+  var pickTarget = null, hoverBox = null;
+  function setImage(box, file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      box.innerHTML = '';
+      var img = new Image();
+      img.src = reader.result; img.alt = 'Captura';
+      img.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:12px';
+      box.appendChild(img);
+      box.style.padding = '0'; box.style.borderStyle = 'solid'; box.style.borderColor = 'transparent';
+    };
+    reader.readAsDataURL(file);
+  }
+  Array.prototype.forEach.call(deck.querySelectorAll('.shotbox'), function (box) {
+    box.tabIndex = 0;
+    box.title = 'Haz clic, arrastra una imagen o pega una captura (Ctrl+V)';
+    box.addEventListener('mouseenter', function () { hoverBox = box; });
+    box.addEventListener('mouseleave', function () { if (hoverBox === box) hoverBox = null; });
+    box.addEventListener('dragover', function (e) { e.preventDefault(); });
+    box.addEventListener('drop', function (e) {
+      e.preventDefault();
+      var f = e.dataTransfer.files[0];
+      if (f && f.type.indexOf('image') === 0) setImage(box, f);
+    });
+    box.addEventListener('click', function () { pickTarget = box; picker.value = ''; picker.click(); });
+  });
+  picker.addEventListener('change', function () {
+    if (picker.files[0] && pickTarget) setImage(pickTarget, picker.files[0]);
+  });
+  document.addEventListener('paste', function (e) {
+    var ae = document.activeElement;
+    var box = (ae && ae.closest && ae.closest('.shotbox')) || hoverBox;
+    if (!box || !e.clipboardData) return;
+    for (var i = 0; i < e.clipboardData.items.length; i++) {
+      var it = e.clipboardData.items[i];
+      if (it.type.indexOf('image') === 0) { setImage(box, it.getAsFile()); e.preventDefault(); break; }
+    }
+  });
+
+  // Navegación
+  document.getElementById('prev').onclick = function () { show(cur - 1); };
+  document.getElementById('next').onclick = function () { show(cur + 1); };
+  document.addEventListener('keydown', function (e) {
+    if (e.target && (e.target.isContentEditable || e.target.tagName === 'INPUT')) return;
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'PageDown' || k === ' ') { show(cur + 1); e.preventDefault(); }
+    else if (k === 'ArrowLeft' || k === 'PageUp') { show(cur - 1); e.preventDefault(); }
+    else if (k === 'Home') { show(0); }
+    else if (k === 'End') { show(slides.length - 1); }
+    else if (k === 'n' || k === 'N') { notes.classList.toggle('show'); }
+  });
+  window.addEventListener('resize', fit);
+  window.addEventListener('hashchange', function () { var n = parseInt(location.hash.slice(1), 10); if (n) show(n - 1); });
+
+  // Barra
+  document.getElementById('btn-notes').onclick = function () { notes.classList.toggle('show'); this.classList.toggle('on'); };
+  document.getElementById('btn-edit').onclick = function () {
+    var on = deck.getAttribute('contenteditable') !== 'true';
+    deck.setAttribute('contenteditable', on ? 'true' : 'false');
+    this.classList.toggle('on', on);
+  };
+  document.getElementById('btn-print').onclick = function () { window.print(); };
+  document.getElementById('btn-save').onclick = function () {
+    var wasOn = deck.getAttribute('contenteditable') === 'true';
+    deck.setAttribute('contenteditable', 'false');
+    var clone = document.documentElement.cloneNode(true);
+    var d = clone.querySelector('#deck'); d.removeAttribute('contenteditable');
+    var inputs = clone.querySelectorAll('input[type=file]'); Array.prototype.forEach.call(inputs, function (n) { n.remove(); });
+    var html = '<!doctype html>\n' + clone.outerHTML;
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+    a.download = decodeURIComponent(location.pathname.split('/').pop() || 'presentacion-eucalyptus.html');
+    document.body.appendChild(a); a.click(); a.remove();
+    if (wasOn) deck.setAttribute('contenteditable', 'true');
+  };
+
+  fit();
+  var start = parseInt(location.hash.slice(1), 10);
+  show(start ? start - 1 : 0);
+})();
+
+</script>
+</body>
+</html>
