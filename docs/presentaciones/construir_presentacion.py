@@ -68,8 +68,25 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 # Solo se añade si los estilos de la presentación numeran las páginas con un contador CSS.
 ESTILOS_CONTADOR = """
 #deck > section::after { content: attr(data-n); }
+#deck > section[data-ponente]::after { content: attr(data-ponente) " · " attr(data-n); }
 #deck > section.cover::before, #deck > section.cover::after { content: none; }
 """
+
+# Quién presenta cada diapositiva (id de la <section>): sale en el pie, junto al número.
+# Sigue docs/presentaciones/reparto-presentacion.md; si cambia el reparto, se cambia aquí.
+PONENTES = {
+    **dict.fromkeys(["problema", "queses", "resultado", "util", "limites"], "Fabiana"),
+    **dict.fromkeys(["app", "partecodigo", "codigo"], "Jc"),
+    **dict.fromkeys(
+        ["edagraficos", "edadecisiones", "datos", "variables", "validacion", "modelos", "trabajo"],
+        "Manon",
+    ),
+    "modelo-logistica": "Fabiana",
+    "modelo-arbol": "Jc",
+    "modelo-svm": "Elena",
+    "modelo-knn": "Manon",
+    **dict.fromkeys(["comparacion", "ganador", "test", "errores", "final"], "Elena"),
+}
 
 # Las diapositivas se ocultan con display:none; en impresión hay que devolverles su display.
 ESTILOS_DISPLAY_FLEX = ":root { --sec-display: flex; }"
@@ -278,6 +295,21 @@ def incrustar_imagenes(cuerpo, imagenes):
     return cuerpo
 
 
+def anadir_ponentes(cuerpo):
+    """Añade data-ponente a cada <section> de PONENTES (el visor lo pone en el pie)."""
+    cuerpo = re.sub(r'(<section id="[^"]+"[^>]*?) data-ponente="[^"]*"', r"\1", cuerpo)
+    faltan = []
+    for identificador, nombre in PONENTES.items():
+        etiqueta = f'<section id="{identificador}"'
+        if etiqueta not in cuerpo:
+            faltan.append(identificador)
+            continue
+        cuerpo = cuerpo.replace(etiqueta, f'{etiqueta} data-ponente="{nombre}"', 1)
+    if faltan and len(faltan) < len(PONENTES):
+        print(f"⚠️ Diapositivas del reparto que no están en la presentación: {', '.join(faltan)}")
+    return cuerpo
+
+
 def estilos_del_visor(css):
     """Estilos del visor, ajustados a cómo maqueta la presentación (contador de páginas y display)."""
     estilos = ESTILOS_VISOR
@@ -305,6 +337,7 @@ def main():
 
     diapositivas = leer_diapositivas(argumentos.fuente, presentacion["order"])
     cuerpo = incrustar_imagenes("\n".join(diapositivas), leer_imagenes(argumentos.imagen))
+    cuerpo = anadir_ponentes(cuerpo)
 
     argumentos.salida.parent.mkdir(parents=True, exist_ok=True)
     argumentos.salida.write_text(componer_pagina(presentacion["title"], css, cuerpo), encoding="utf-8", newline="\n")

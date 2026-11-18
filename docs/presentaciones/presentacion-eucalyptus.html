@@ -210,6 +210,7 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 }
 
 #deck > section::after { content: attr(data-n); }
+#deck > section[data-ponente]::after { content: attr(data-ponente) " · " attr(data-n); }
 #deck > section.cover::before, #deck > section.cover::after { content: none; }
 
 
@@ -241,7 +242,7 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 Hola, somos el equipo g3. Nuestro proyecto estima la utilidad de parcelas de eucalipto a partir de medidas de campo. Primero veremos el problema y el resultado del equipo; después, la aplicación y el proceso técnico. Mi modelo es la regresión logística, que explicaré más adelante.
 Fuente: README.md; reparto-presentacion.md.</aside>
 </section>
-<section id="problema" class="light">
+<section id="problema" data-ponente="Fabiana" class="light">
 <p class="eyebrow">El problema</p>
 <h2>Elegir qué plantar para proteger las laderas</h2>
 <div class="row" style="gap:40px">
@@ -279,7 +280,7 @@ El conjunto Eucalyptus recoge 736 parcelas de ensayo en 16 sitios de Nueva Zelan
 Queremos estimar Utility, su calificación de utilidad para conservar el suelo. Tiene cinco niveles ordenados: none, low, average, good y best. Nuestro objetivo es aprender la relación entre las medidas y esa etiqueta para apoyar la evaluación de otras parcelas.
 Fuente: 00_general.ipynb; docs/project-brief.md.</aside>
 </section>
-<section id="queses" class="tint">
+<section id="queses" data-ponente="Fabiana" class="tint">
 <p class="eyebrow">La solución</p>
 <h2>Un modelo que repite la calificación a partir de las medidas</h2>
 <div class="story">
@@ -339,7 +340,7 @@ Comparamos los algoritmos con entrenamiento y validación. Solo al final evaluam
 Las cifras que siguen son del SVM ganador del equipo, no de mi regresión logística.
 Fuente: docs/acuerdos.md; 06_conclusiones.ipynb.</aside>
 </section>
-<section id="resultado" class="dark">
+<section id="resultado" data-ponente="Fabiana" class="dark">
 <p class="eyebrow">El resultado</p>
 <h2>Acierta unas 7 de cada 10 parcelas</h2>
 <div class="split anim" style="--i:0">
@@ -359,7 +360,7 @@ De los 35 errores, 34 fueron entre clases vecinas, como good y best. Solo uno sa
 Los errores vecinos siguen siendo errores; no los sumamos a los aciertos. Estas cifras se obtuvieron una sola vez en test, después de seleccionar el modelo.
 Fuente: 06_conclusiones.ipynb; docs/informe-tecnico.md.</aside>
 </section>
-<section id="util" class="light biz">
+<section id="util" data-ponente="Fabiana" class="light biz">
 <p class="eyebrow">Cuándo ayuda más</p>
 <h2>Separa bien lo que sirve de lo que no</h2>
 <div class="cards">
@@ -372,7 +373,7 @@ En este test, ninguna de las 43 parcelas none o low se recomendó como good o be
 Esto puede ayudar a priorizar revisiones, pero cero errores de ese tipo aquí no garantiza cero errores futuros.
 Fuente: 06_conclusiones.ipynb; docs/informe-tecnico.md.</aside>
 </section>
-<section id="limites" class="tint biz">
+<section id="limites" data-ponente="Fabiana" class="tint biz">
 <p class="eyebrow">Cuándo no fiarse</p>
 <h2>Tres límites a tener presentes</h2>
 <div class="cards">
@@ -387,7 +388,7 @@ El modelo orienta; la decisión requiere contexto de campo.
 RELEVO: Ahora Jc nos mostrará la aplicación y la estructura del código.
 Fuente: 06_conclusiones.ipynb; docs/acuerdos.md, ADR-0001 y ADR-0002.</aside>
 </section>
-<section id="app" class="dark">
+<section id="app" data-ponente="Jc" class="dark">
   <p class="eyebrow">La app · demo en vivo</p>
   <h2 style="margin-bottom:36px">El modelo en uso, con las mismas reglas que los notebooks</h2>
   <div class="row" style="gap:56px; align-items:flex-start">
@@ -399,13 +400,13 @@ Fuente: 06_conclusiones.ipynb; docs/acuerdos.md, ADR-0001 y ADR-0002.</aside>
   </div>
   <aside>JC · 2 minutos y 45 segundos · Demo. La app no es solo un formulario: aplica al modelo las mismas reglas que usamos en los notebooks, y cada caso de la demo enseña una. Caso 1 (≈ 50 s): en «Rellenar con una parcela de validación» elijo una, pulso Predecir y sale su clase, con su lugar en la escala none–best. Debajo aparece la clase real para compararla. La app carga el pipeline completo, preprocesado y modelo, que es lo que pide el paso 10 de la guía; y un test comprueba que en las 110 parcelas de validación da exactamente lo mismo que el notebook. Caso 2 (≈ 40 s): vacío las seis medidas y pulso Predecir. Responde none y avisa de que es una regla fija, no el modelo. Es el ADR-0001: en los datos, las 46 parcelas sin medidas eran todas none; si el modelo lo aprendiera, sería fuga de datos y sus métricas saldrían infladas. Caso 3 (≈ 30 s): pongo un diámetro negativo. La app avisa y no predice. En el EDA encontramos un diámetro de 42 085 cm; por eso la app tiene rangos posibles. Caso 4 (≈ 30 s): cambio el sitio a «Otro / desconocido». Predice, pero avisa: en sitios que el modelo no ha visto acierta menos, F1 de 0,51 en la validación por sitio (ADR-0002). Si la demo falla, la captura de la derecha muestra el caso 1. RELEVO: paso a cómo está construido el código.</aside>
 </section>
-<section id="partecodigo" class="dark" data-transition="fade">
+<section id="partecodigo" data-ponente="Jc" class="dark" data-transition="fade">
 <p class="eyebrow">Parte técnica</p>
 <h1>Cómo se construyó</h1>
 <p class="lead">Datos, validación, cuatro modelos, el ganador, el test y la estructura del código.</p>
 <aside>Hasta aquí, el lado de negocio y la app. A partir de ahora, el código: cómo se prepararon los datos, cómo se validó, qué modelos se probaron y cómo se eligió el ganador.</aside>
 </section>
-<section id="codigo" class="tint">
+<section id="codigo" data-ponente="Jc" class="tint">
   <p class="eyebrow">Estructura del código</p>
   <h2 style="margin-bottom:36px">Siete notebooks, una librería común y una app con tests</h2>
   <div class="flow">
@@ -424,7 +425,7 @@ Fuente: 06_conclusiones.ipynb; docs/acuerdos.md, ADR-0001 y ADR-0002.</aside>
   </div>
   <aside>JC · 45 segundos · Cada persona hizo un algoritmo, pero para compararlos tenían que medirse con la misma vara. Por eso todo lo repetido vive en comun.py: el split, la validación cruzada, el Dummy, el gap con signo y la regla que elige el modelo ganador. Lo propio de cada algoritmo, su pipeline y su rejilla, se queda en su notebook. final.ipynb junta los siete notebooks en uno, ya ejecutado y con índice. Y la app se hizo con TDD: primero el test que falla, luego el código que lo pasa; son 32 tests, y los tests unitarios ya son del Nivel Avanzado. RELEVO: Manon cuenta ahora los datos, empezando por el EDA.</aside>
 </section>
-<section id="edagraficos" class="light">
+<section id="edagraficos" data-ponente="Manon" class="light">
 <p class="eyebrow">EDA · lo que se ve</p>
 <h2>Dos gráficos que cambiaron el diseño</h2>
 <div class="row" style="gap:40px">
@@ -442,7 +443,7 @@ Fuente: 06_conclusiones.ipynb; docs/acuerdos.md, ADR-0001 y ADR-0002.</aside>
 <p class="small" style="margin-top:32px">Gráficos del informe del EDA, sobre las 515 parcelas de entrenamiento.</p>
 <aside>Primer gráfico: las 46 parcelas sin ninguna medida (sitios Mor y Wen) son todas none, frente al 17 % de none entre las 469 que sí tienen medidas. Si el modelo aprendiera que no hay medidas significa none, parecería más acertado de lo que será con datos nuevos que sí traigan medidas: eso es fuga de información. Segundo gráfico: el vigor es la medida que más se parece a la clase. De las 191 parcelas con vigor mayor que 3, 165 son good o best; de las 104 con vigor 2 o menos, ninguna. Es una asociación, no una causa. Un tercer gráfico, el de clases por sitio, está en docs/informe-eda.md.</aside>
 </section>
-<section id="edadecisiones" class="tint">
+<section id="edadecisiones" data-ponente="Manon" class="tint">
 <p class="eyebrow">Del EDA a las decisiones</p>
 <h2>De cada hallazgo, una decisión</h2>
 <table>
@@ -455,7 +456,7 @@ Fuente: 06_conclusiones.ipynb; docs/acuerdos.md, ADR-0001 y ADR-0002.</aside>
 </table>
 <aside>Resumen de docs/informe-eda.md y de las decisiones del equipo. ADR-0001 quita las parcelas sin medidas solo de train y las trata con una regla en validación, test y app. ADR-0002 usa StratifiedKFold como validación común y añade StratifiedGroupKFold por sitio solo para medir cuánto se infla la métrica. El desequilibrio de clases es moderado (good 29,1 %, best 14,2 %), sin una clase dominante.</aside>
 </section>
-<section id="datos" class="light">
+<section id="datos" data-ponente="Manon" class="light">
 <p class="eyebrow">Limpieza</p>
 <h2>Qué había que arreglar y qué se hizo</h2>
 <table>
@@ -470,7 +471,7 @@ Fuente: 06_conclusiones.ipynb; docs/acuerdos.md, ADR-0001 y ADR-0002.</aside>
 <p class="small" style="margin-top:32px">Se limpia una sola vez, tras el split 70/15/15, y los cuatro notebooks leen los mismos CSV.</p>
 <aside>La limpieza está en limpiar() de comun.py y la llama 01_eda, que guarda data/train.csv, data/val.csv y data/test.csv. Los notebooks de algoritmo solo leen train y val; test solo lo abre 06.</aside>
 </section>
-<section id="variables" class="light">
+<section id="variables" data-ponente="Manon" class="light">
 <p class="eyebrow">Variables</p>
 <h2>Qué entra a cada modelo y cómo se prepara</h2>
 <table>
@@ -484,7 +485,7 @@ Fuente: 06_conclusiones.ipynb; docs/acuerdos.md, ADR-0001 y ADR-0002.</aside>
 <p class="small" style="margin-top:16px"><b>Variables nuevas:</b> ninguna, el EDA no mostró una combinación clara. Todo va dentro del Pipeline y se ajusta solo con train.</p>
 <aside>Cada persona definió el preprocesado de su modelo. Las numéricas son DBH, Ht, Surv, Vig, Ins_res, Stem_Fm, Crown_Fm y Brnch_Fm; faltan 22 Surv (sitio Cly) y un DBH (el erróneo). La mediana se usa porque no la arrastran los valores extremos. El árbol no escala porque compara cada variable consigo misma, y usa codificación ordinal porque con one-hot tendría 39 columnas y la importancia se repartiría. El KNN lo comprobó con validación cruzada: añadir la especie bajó el F1 de 0.562 a 0.544 con k = 11 y de 0.533 a 0.503 con k = 41; quitar DBH y Brnch_Fm no dio una mejora consistente, así que se mantuvieron las 9 variables.</aside>
 </section>
-<section id="validacion" class="light">
+<section id="validacion" data-ponente="Manon" class="light">
 <p class="eyebrow">Validación</p>
 <h2>Split 70/15/15 y la misma vara para todos</h2>
 <div class="row" style="margin-bottom:48px">
@@ -499,7 +500,7 @@ Fuente: 06_conclusiones.ipynb; docs/acuerdos.md, ADR-0001 y ADR-0002.</aside>
 </div>
 <aside>El test solo se abre una vez, en 06_conclusiones, con el modelo ganador. Las parcelas sin medidas de validación y test no pasan por el modelo: se predicen none por regla antes de calcular métricas, y las métricas se dan sobre todo el conjunto y solo con medidas.</aside>
 </section>
-<section id="modelos" class="light">
+<section id="modelos" data-ponente="Manon" class="light">
 <p class="eyebrow">Los cuatro modelos</p>
 <h2>Cuatro algoritmos, una persona por algoritmo</h2>
 <table>
@@ -513,7 +514,7 @@ Fuente: 06_conclusiones.ipynb; docs/acuerdos.md, ADR-0001 y ADR-0002.</aside>
 <p class="small" style="margin-top:24px">Los cuatro eligen sus hiperparámetros solo con train y con el filtro de gap de CV menor de 5 puntos.</p>
 <aside>Los valores salen de resultados/*.json. El C tan bajo del SVM (mucha regularización) es lo que lo protege del sobreajuste. El KNN no tiene regularización: guarda los datos de entrenamiento.</aside>
 </section>
-<section id="trabajo" class="tint">
+<section id="trabajo" data-ponente="Manon" class="tint">
 <p class="eyebrow">Trabajo por modelo · F1 en validación y gap</p>
 <h2>Qué probó cada uno y qué aprendió</h2>
 <div class="wgrid">
@@ -540,7 +541,7 @@ Fuente: 06_conclusiones.ipynb; docs/acuerdos.md, ADR-0001 y ADR-0002.</aside>
 </div>
 <aside>Resumen del trabajo de cada notebook. El número de cada etiqueta es el F1 macro en toda la validación y el gap es F1 train menos F1 validación con medidas, en puntos; el límite es 5. Regresión logística: comparó class_weight None y balanced y eligió balanced con C = 0.003; su notebook propone estudiar la selección en CV y la separación de las clases intermedias. Árbol: la combinación con mejor nota en CV tenía un gap de 43 puntos; meter la regla del overfitting dentro de la elección dio un árbol igual de bueno y 14 veces más pequeño, con 9 reglas legibles. SVM: C = 0.07 tenía el F1 de CV más alto pero rebasaba el gap; la regla común eligió C = 0.045. KNN: la rejilla tuvo 48 combinaciones, la comparación de variables (con Sp, sin DBH ni Brnch_Fm) mantuvo las 9 actuales, y con pesos por distancia el gap sería de unos 43 puntos.</aside>
 </section>
-<section id="modelo-logistica" class="light">
+<section id="modelo-logistica" data-ponente="Fabiana" class="light">
 <p class="eyebrow">Modelo 1 de 4 · Fabiana · F1 val 0,468 · gap 6,52 puntos</p>
 <h2>Regresión logística</h2>
 <div class="row rl-layout">
@@ -571,7 +572,7 @@ La confusión principal es good hacia best: 21 casos. El vigor tiene el mayor pe
 RELEVO: Jc explicará ahora el árbol de decisión.
 Fuentes: 02_regresion_logistica.ipynb, §§3–9; resultados/02_regresion_logistica.json; modelo exportado. Matriz: 110 parcelas, con regla none. Barras: cinco mayores medias de |coeficiente| entre clases; numéricas estandarizadas, one-hot en escala 0/1.</aside>
 </section>
-<section id="modelo-arbol" class="light">
+<section id="modelo-arbol" data-ponente="Jc" class="light">
   <p class="eyebrow">Modelo 2 de 4 · Jc · F1 val 0,562 · gap 3,6 puntos</p>
   <h2 style="margin-bottom:32px">Árbol de decisión: de memorizar a generalizar</h2>
   <div class="row" style="gap:40px; align-items:stretch">
@@ -589,7 +590,7 @@ Fuentes: 02_regresion_logistica.ipynb, §§3–9; resultados/02_regresion_logist
   </div>
   <aside>JC · 1 minuto y 15 segundos · Mi modelo. Primero entrené un árbol sin límites: acertaba el 100 % de train pero solo 0,54 en validación cruzada, un gap de 46 puntos. Crecía hasta 139 hojas, casi una regla por cada tres parcelas: memorizaba. La curva de complejidad lo enseña: con más profundidad, train sube hasta 1, pero la validación se queda plana. Con GridSearchCV probé 120 combinaciones. A ciegas, GridSearchCV elegía otra vez un árbol sin límites; con nuestra regla, que exige un gap menor de 5, eligió entropy, profundidad 4 y 30 parcelas por hoja: casi el mismo F1 en CV, 0,565, pero con gap 3 y 10 hojas, catorce veces más pequeño. En validación saca 0,562 y gap 3,6: cumple. Además se puede leer: la primera pregunta es el vigor, que decide el 72 %, igual que decía el EDA. Su límite es best: casi siempre lo confunde con good, porque le exige una copa muy buena. Quedó segundo, por detrás del SVM. RELEVO: Elena presenta el SVM, el modelo ganador.</aside>
 </section>
-<section id="modelo-svm" class="light">
+<section id="modelo-svm" data-ponente="Elena" class="light">
 <p class="eyebrow">Modelo 3 de 4 · Elena · 0.636 · gap 3.0 · ganador</p>
 <h2>SVM lineal</h2>
 <div class="row" style="gap:40px; align-items:stretch">
@@ -605,7 +606,7 @@ Fuentes: 02_regresion_logistica.ipynb, §§3–9; resultados/02_regresion_logist
 </div>
 <aside>Plantilla para Elena. Rellena los tres apartados de la izquierda y sustituye los dos recuadros de la derecha por capturas del notebook 04_svm. Datos de partida: F1 de validación 0.636, gap 3.0 (cumple), C = 0.045; es el modelo ganador.</aside>
 </section>
-<section id="modelo-knn" class="light">
+<section id="modelo-knn" data-ponente="Manon" class="light">
 <p class="eyebrow">Modelo 4 de 4 · Manon · 0.552 · gap 5.4</p>
 <h2>KNN</h2>
 <div class="row" style="gap:40px; align-items:stretch">
@@ -621,7 +622,7 @@ Fuentes: 02_regresion_logistica.ipynb, §§3–9; resultados/02_regresion_logist
 </div>
 <aside>Plantilla para Manon. Rellena los tres apartados de la izquierda y sustituye los dos recuadros de la derecha por capturas del notebook 05_knn. Datos de partida: F1 de validación 0.552, gap 5.4 (no cumple, aceptado y explicado), k = 41, voto uniforme, distancia Manhattan.</aside>
 </section>
-<section id="comparacion" class="tint">
+<section id="comparacion" data-ponente="Elena" class="tint">
 <p class="eyebrow">Comparación en validación</p>
 <h2>Todos superan al Dummy, pero solo dos cumplen el gap</h2>
 <div class="crow chead"><p class="cname">Modelo</p><p class="cnum">F1 val</p><p class="cnum">Accuracy</p><p style="width:600px">Gap en puntos (límite: 5)</p></div>
@@ -633,7 +634,7 @@ Fuentes: 02_regresion_logistica.ipynb, §§3–9; resultados/02_regresion_logist
 <p class="small" style="margin-top:24px">F1 y accuracy sobre toda la validación (110 parcelas, con la regla none). Gap = F1 train menos F1 val con medidas. La línea marca el límite de 5 puntos; fila resaltada: el ganador.</p>
 <aside>Fuente: 06_conclusiones, paso 3. Todos superan al Dummy entre 22 y 39 puntos de F1. F1 de validación cruzada: SVM 0.582 ± 0.085, árbol 0.565 ± 0.025, KNN 0.533 ± 0.046, regresión logística 0.434 ± 0.021. El KNN se dejó con su gap de 5.4 a propósito: retocarlo mirando la validación sería ajustar a la validación; es coherente con cómo funciona KNN, que guarda los datos y no regulariza. El criterio de menos de 5 puntos se exige al ganador, no a cada candidato. La accuracy ordena casi igual pero sale siempre más alta que el F1 macro porque premia acertar good.</aside>
 </section>
-<section id="ganador" class="light">
+<section id="ganador" data-ponente="Elena" class="light">
 <p class="eyebrow">Elección del ganador</p>
 <h2>Gana el SVM con una regla escrita antes de ver los resultados</h2>
 <p class="lead" style="margin-bottom:48px">Regla del equipo: entre los modelos con gap menor de 5 puntos, el de mayor F1 macro en toda la validación. El test no interviene.</p>
@@ -645,7 +646,7 @@ Fuentes: 02_regresion_logistica.ipynb, §§3–9; resultados/02_regresion_logist
 <p class="small" style="margin-top:40px">Precaución: en CV el SVM varía más (0.582 ± 0.085) que el árbol (0.565 ± 0.025), y la diferencia de 1.7 puntos cae dentro de esa variación.</p>
 <aside>La regla está en docs/acuerdos.md. Por sitio, SVM y árbol quedan igual (0.507 y 0.519, ambos con ± 0.11): ninguno resuelve mejor los sitios nuevos. Si negocio prefiriera explicabilidad, el árbol sería una alternativa razonable.</aside>
 </section>
-<section id="test" class="dark">
+<section id="test" data-ponente="Elena" class="dark">
 <p class="eyebrow">Evaluación en test</p>
 <h2>El test se abrió una sola vez, con el ganador</h2>
 <div class="cards">
@@ -656,7 +657,7 @@ Fuentes: 02_regresion_logistica.ipynb, §§3–9; resultados/02_regresion_logist
 <p class="lead" style="margin-top:48px">Validación daba 0.636, así que no hay caída: ni fuga de datos ni ajuste a la validación. En producción cabe esperar un F1 macro de entre 0.60 y 0.65.</p>
 <aside>Evaluación en una sola celda de 06_conclusiones: predecir_con_regla() responde none a las parcelas sin medidas y pasa el resto al pipeline. Solo con medidas el F1 es 0.643. No se cambia de modelo por lo que salga en test.</aside>
 </section>
-<section id="errores" class="tint">
+<section id="errores" data-ponente="Elena" class="tint">
 <p class="eyebrow">Errores e interpretación</p>
 <h2>Cuando se equivoca, casi siempre se queda a un paso</h2>
 <div class="cards">
@@ -667,7 +668,7 @@ Fuentes: 02_regresion_logistica.ipynb, §§3–9; resultados/02_regresion_logist
 <p class="small" style="margin-top:40px">Por sitio no rinde igual: los sitios grandes quedan cerca de la media (accuracy 0.68 y 0.64) y K82, Wak y Lon por debajo (0.56 a 0.63).</p>
 <aside>Importancia por permutación sobre test con medidas; coincide con validación (Vig 0.265). El sitio pesa poco (0.04). Los sitios con 2 a 9 parcelas no permiten sacar conclusiones.</aside>
 </section>
-<section id="final" class="light biz">
+<section id="final" data-ponente="Elena" class="light biz">
 <p class="eyebrow">Siguientes pasos</p>
 <h2>Cómo seguir, para negocio y para el código</h2>
 <div class="cards">
