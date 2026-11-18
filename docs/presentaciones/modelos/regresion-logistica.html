@@ -153,6 +153,7 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
   @page { size: 1920px 1080px; margin: 0; }
 }
 :root { --sec-display: flex; }
+#notes { white-space:pre-line; }
 </style>
 </head>
 <body>
@@ -164,6 +165,7 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 <div class="rule"></div>
 <p class="cover-meta">Historia #38  ·  Notebook 02_regresion_logistica.ipynb  ·  Dataset Eucalyptus</p>
 <div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>1</p></div>
+<aside>FABIANA · Material de apoyo para preguntas. En la presentación grupal, el resumen está en el slide 17. Esta explicación ampliada describe únicamente la regresión logística y su validación, no el test del SVM. Fuente: 02_regresion_logistica.ipynb. Fuente: 02_regresion_logistica.ipynb; resultados/02_regresion_logistica.json.</aside>
 </section>
 <section id="agenda">
 <div class="head"><p class="kicker">Introducción</p><h2>Qué vamos a explicar</h2></div>
@@ -193,9 +195,9 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 <section id="datos">
 <div class="head"><p class="kicker">Datos</p><h2>2. Datos de trabajo</h2></div>
 <div class="cards">
-<div class="card k-low"><h3 class="t-low">TRAIN · 70%</h3><p class="stat-sm">469 filas</p><p>Para aprender y para la validación cruzada.</p></div>
+<div class="card k-low"><h3 class="t-low">TRAIN · tras limpieza</h3><p class="stat-sm">469 filas</p><p>Para aprender y para la validación cruzada.</p></div>
 <div class="card k-good"><h3 class="t-good">VALIDACIÓN · 15%</h3><p class="stat-sm">110 filas</p><p>Para medir el rendimiento del modelo elegido.</p></div>
-<div class="card k-best"><h3 class="t-best">TEST · 15%</h3><p class="stat-sm">No se lee</p><p>Se reserva para la comparación final en 06_conclusiones.</p></div>
+<div class="card k-best"><h3 class="t-best">TEST · 15%</h3><p class="stat-sm">No se lee</p><p>Este notebook no lo lee; el equipo evalúa al ganador en 06_conclusiones.</p></div>
 </div>
 <table class="tbl compact">
 <tr><th>Conjunto</th><th>none</th><th>low</th><th>average</th><th>good</th><th>best</th></tr>
@@ -214,17 +216,19 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 </div>
 <p class="note blue">C controla la regularización L2: un C pequeño limita mucho los coeficientes (modelo más simple); uno grande les deja crecer.</p>
 <div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>5</p></div>
+<aside>¿Por qué se llama regresión si clasifica? Aprende puntuaciones lineales por clase y las convierte en probabilidades mediante softmax. Predice la clase más probable. No utiliza la distancia ordinal entre none y best. Un coeficiente no demuestra causalidad. Fuente: 02_regresion_logistica.ipynb; resultados/02_regresion_logistica.json.</aside>
 </section>
 <section id="preprocesado">
 <div class="head"><p class="kicker">Preprocesado</p><h2>4. Variables y preparación de los datos</h2></div>
 <div class="grid2">
 <div class="card k-low"><h3>8 medidas numéricas</h3><p>Imputar con la mediana y estandarizar, para que las unidades no dominen la regularización.</p></div>
 <div class="card k-avg"><h3>Abbrev y Sp</h3><p>One-hot encoding; las categorías con menos de 3 parcelas en el fold se agrupan.</p></div>
-<div class="card k-none"><h3>Excluidas</h3><p>Rep y PMCno: identificadores del ensayo, sin relación con la utilidad.</p></div>
+<div class="card k-none"><h3>Excluidas</h3><p>Rep y PMCno: identificadores del ensayo; no se supone una relación ordinal con la utilidad.</p></div>
 <div class="card k-good"><h3>Variables correlacionadas</h3><p>DBH, Ht y las formas se conservan: L2 limita los coeficientes sin quitar medidas a mano.</p></div>
 </div>
 <p class="note">También se compara class_weight=None frente a "balanced" para atender al desbalance moderado, solo con CV sobre train.</p>
 <div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>6</p></div>
+<aside>¿Cómo evité la fuga de información? La imputación, el escalado y one-hot están dentro del Pipeline, por lo que cada fold ajusta sus transformaciones solo con su entrenamiento. Conservé sitio y especie; eliminé Rep y PMCno. No cambié el split ni la limpieza común. Fuente: 02_regresion_logistica.ipynb; resultados/02_regresion_logistica.json.</aside>
 </section>
 <section id="sin-medidas">
 <div class="head"><p class="kicker">Calidad de datos</p><h2>5. Una regla especial: parcelas sin medidas</h2></div>
@@ -235,6 +239,7 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 <p class="body">Según la decisión <b>ADR-0001</b>, si faltan las seis medidas del árbol, se responde <b>none</b> sin llamar al modelo.</p>
 <p class="note">La regla acierta esas parcelas por construcción; no conviene mezclarlas con lo que aprende la regresión logística.</p>
 <div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>7</p></div>
+<aside>¿Por qué hay dos métricas? Las 15 parcelas sin las seis medidas se resuelven con la regla none antes de entrar al modelo. El F1 global incluye esos casos para comparar el sistema completo. Para el gap se usa únicamente la validación con medidas: 95 parcelas. Fuente: 02_regresion_logistica.ipynb; resultados/02_regresion_logistica.json.</aside>
 </section>
 <section id="baseline">
 <div class="head"><p class="kicker">Baseline</p><h2>6. Baseline: el mínimo que debemos superar</h2></div>
@@ -257,6 +262,7 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 </div>
 <p class="note">Regla de elección: mayor F1 macro en CV entre las combinaciones con gap train–CV menor de 5 puntos; en empate, el menor C. La rejilla se fija antes de mirar la validación.</p>
 <div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>9</p></div>
+<aside>¿Elegiste los parámetros mirando validación? No. La rejilla tiene 10 valores de C por 2 pesos de clase y se evalúa con StratifiedKFold de 5 folds sobre train. Se aplica elegir_sin_sobreajuste de comun.py. No se vuelve a ajustar tras ver validación. Fuente: 02_regresion_logistica.ipynb; resultados/02_regresion_logistica.json.</aside>
 </section>
 <section id="eleccion">
 <div class="head"><p class="kicker">Ajuste</p><h2>8. Elegir sin sobreajuste</h2></div>
@@ -264,8 +270,9 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 <div class="card k-best"><h3>Mejor F1 "a ciegas"</h3><p class="stat-sm">C = 10 · balanced</p><p>F1 CV 0,584, pero F1 train 0,795:</p><p class="stat-sm t-bad">Gap 21,1 puntos</p></div>
 <div class="card k-good"><h3>Modelo elegido</h3><p class="stat-sm t-good">C = 0,003 · balanced</p><p>F1 CV 0,434 con un gap de CV de 3,4 puntos.</p><p>Regularización muy fuerte.</p></div>
 </div>
-<p class="note">Para cumplir el gap hay que regularizar tanto que el rendimiento cae: el precio de no sobreajustar es un modelo limitado.</p>
+<p class="note">La regla de CV elige una regularización fuerte. Su gap en CV es menor de 5; en validación alcanza 6,52 y no cumple.</p>
 <div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>10</p></div>
+<aside>¿Por qué no C = 10, que tiene mejor F1? Con balanced daba F1 CV 0,5835 pero gap train–CV 21,13 puntos. La regla común exige menos de 5. C = 0,003 y balanced daba F1 CV 0,4343 y gap 3,41. El criterio de selección y la evaluación posterior son pasos distintos. Fuente: 02_regresion_logistica.ipynb; resultados/02_regresion_logistica.json.</aside>
 </section>
 <section id="validacion">
 <div class="head"><p class="kicker">Validación</p><h2>9. Validación cruzada: al azar y por sitio</h2></div>
@@ -275,6 +282,7 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 </div>
 <p class="note">ADR-0002: con sitios nuevos el F1 cae 3,75 puntos. El resultado del reparto común no se puede trasladar sin más a sitios nuevos.</p>
 <div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>11</p></div>
+<aside>¿Qué aporta validar por sitio? F1 pasa de 0,434 ± 0,021 a 0,397 ± 0,030 cuando los sitios de validación no se comparten con train. Es una comprobación adicional de generalización; no la usé para retocar el modelo. La CV común se reutiliza tras la selección, así que no es una estimación independiente de ella. Fuente: 02_regresion_logistica.ipynb; resultados/02_regresion_logistica.json.</aside>
 </section>
 <section id="evaluacion">
 <div class="head"><p class="kicker">Resultados</p><h2>10. Evaluación en validación</h2></div>
@@ -286,6 +294,7 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 <p class="body">Accuracy: 0,509 en toda la validación y 0,432 solo con medidas. En validación cruzada supera al Dummy en unos 34 puntos (0,434 frente a 0,097).</p>
 <p class="note">Aprende algo, pero su nivel de F1 es "flojo" en los dos casos.</p>
 <div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>12</p></div>
+<aside>¿Qué significa F1 macro? Se calcula el F1 de cada una de las cinco clases y se promedian con el mismo peso. Combina precisión y recall y evita que la clase más frecuente domine la comparación. F1 global: 0,4677; Dummy: 0,2436. Diferencia: 22,41 puntos. Fuente: 02_regresion_logistica.ipynb; resultados/02_regresion_logistica.json.</aside>
 </section>
 <section id="sobreajuste">
 <div class="head"><p class="kicker">Sobreajuste</p><h2>11. Control de sobreajuste</h2></div>
@@ -297,6 +306,7 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 <p class="body">En CV el gap era de 3,4 puntos. Posibles causas: el modelo final se entrena con todo train y la validación solo tiene 95 parcelas medidas. Esta ejecución no permite aislar una causa única.</p>
 <p class="note">Se conserva la elección hecha con train y se documenta el incumplimiento: no se usa la validación para elegir otra configuración.</p>
 <div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>13</p></div>
+<aside>¿Por qué el gap empeora fuera de CV? CV y validación usan muestras y tamaños de entrenamiento diferentes. El modelo final aprende con 469 parcelas y validación con medidas tiene 95. Son posibles factores; esta ejecución no identifica una causa única. Gap = (0,4943295 − 0,4290976) × 100 = 6,5232 puntos. No se resta el F1 global de 0,4677. Fuente: 02_regresion_logistica.ipynb; resultados/02_regresion_logistica.json.</aside>
 </section>
 <section id="clases">
 <div class="head"><p class="kicker">Resultados</p><h2>12. ¿Qué clases reconoce mejor?</h2></div>
@@ -308,8 +318,9 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 <div class="card k-best"><h3 class="t-best">best</h3><p class="stat-sm">F1 0,43</p><p>Recall 0,69</p></div>
 </div>
 <p class="body">Separa mejor los extremos (none, best) que las clases intermedias. average y good son su punto débil: recall de 0,16 y 0,25.</p>
-<p class="note">Al revés que los otros modelos: con class_weight="balanced" se atreve con best (recall 0,69), pero a costa de good.</p>
+<p class="note">El modelo predice best en 35 parcelas: acierta 11 y confunde 21 good con best. No se ha aislado la causa de este patrón.</p>
 <div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>14</p></div>
+<aside>¿Por qué no basta el recall de best? Recupera 11 de las 16 best, pero predice best en 35 casos: su precisión es solo 0,314. Muchas predicciones best son en realidad good. También hay que distinguir el buen resultado de none debido a la regla de parcelas sin medidas. Fuente: 02_regresion_logistica.ipynb; resultados/02_regresion_logistica.json.</aside>
 </section>
 <section id="errores">
 <div class="head"><p class="kicker">Interpretación</p><h2>13. Análisis de errores</h2></div>
@@ -321,6 +332,7 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 <p class="body">Más frecuentes: good → best (21), low → none (7), average → none (5) y average → low (5).</p>
 <p class="note">Un vigor alto favorece tanto good como best, con más peso en best: compatible con la confusión principal. Es una hipótesis, no una causa demostrada.</p>
 <div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>15</p></div>
+<aside>¿Qué error es el más frecuente? good → best, con 21 casos. De los 54 errores, 41 son vecinos y 13 saltan dos o más niveles. Los pesos equilibrados y la regularización podrían influir, pero no se hizo una comparación causal que lo pruebe. Fuente: 02_regresion_logistica.ipynb; resultados/02_regresion_logistica.json.</aside>
 </section>
 <section id="coeficientes">
 <div class="head"><p class="kicker">Interpretación</p><h2>14. ¿Qué variables aportan más?</h2></div>
@@ -333,6 +345,7 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 </table>
 <p class="note blue">Más vigor, altura y diámetro empujan hacia las clases altas. Las variables correlacionadas se reparten los coeficientes: es una lectura del modelo, no una causa.</p>
 <div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>16</p></div>
+<aside>¿Qué significa importancia aquí? Media del valor absoluto del coeficiente de cada variable transformada entre las cinco clases. Vig tiene la mayor magnitud, seguido por Ht y DBH. Las numéricas están estandarizadas y one-hot está en escala 0/1. Las variables correlacionadas pueden repartirse los coeficientes; no es una medida causal. Fuente: 02_regresion_logistica.ipynb; resultados/02_regresion_logistica.json.</aside>
 </section>
 <section id="guardar">
 <div class="head"><p class="kicker">Despliegue</p><h2>15. Guardar el modelo y requisitos</h2></div>
@@ -347,6 +360,7 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 <tr><td>Pipeline guardado</td><td>02_regresion_logistica.joblib</td><td><span class="ok">Sí</span></td></tr>
 </table>
 <div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>17</p></div>
+<aside>¿Está listo para la app? Se exportó el pipeline completo y su recarga en un proceso nuevo reprodujo las 110 predicciones. Debe invocarse a través de predecir_con_regla para aplicar none antes del modelo. Eso no lo convierte en ganador: cumple_gap=false. Fuente: 02_regresion_logistica.ipynb; resultados/02_regresion_logistica.json.</aside>
 </section>
 <section id="conclusiones" class="dark">
 <div class="head"><p class="kicker">Conclusiones</p><h2>¿Qué nos llevamos del experimento?</h2></div>
@@ -354,11 +368,12 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 <li>Regresión logística con C = 0,003 y class_weight="balanced": F1 macro 0,468 en validación (0,429 solo con medidas).</li>
 <li>Supera al Dummy: +22 puntos en toda la validación y +33 con medidas.</li>
 <li>Gap de 6,5 puntos: no cumple el criterio, aunque en CV era de 3,4.</li>
-<li>Vig es la variable con más peso; separa bien los extremos pero falla en average y good.</li>
-<li>No es candidato a modelo ganador; el test se reserva para 06_conclusiones.</li>
+<li>Vig es la variable con más peso; reconoce mejor none y best en recall, pero falla en average y good.</li>
+<li>No cumple el criterio para ganar; el test del ganador se presenta en 06_conclusiones.</li>
 </ul>
 <p class="note">Mensaje clave: un gap pequeño en CV no basta para afirmar que un modelo es bueno.</p>
 <div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>18</p></div>
+<aside>¿Qué aprendí? Superar al Dummy y tener poco gap en CV no basta. Debo comprobar rendimiento por clase, generalización por sitio y gap en validación. Entrego un resultado reproducible y explico su límite, sin modificar la configuración para mejorar una validación ya observada. La siguiente iteración debe estudiar la selección en CV y las clases intermedias. Fuente: 02_regresion_logistica.ipynb; resultados/02_regresion_logistica.json.</aside>
 </section>
 </div></div>
 <div id="notes"></div>
