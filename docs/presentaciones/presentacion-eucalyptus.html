@@ -238,6 +238,7 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
 <h1>¿Qué parcelas sirven para conservar el suelo?</h1>
 <p class="lead">Un modelo que lo estima a partir de lo que se mide en el campo: qué hace, cómo se usa y cómo se construyó.</p>
 <p class="small" style="margin-top:64px">Dataset Eucalyptus (OpenML 188) · Equipo g3</p>
+<p class="small" style="position:absolute; right:128px; bottom:72px; margin:0; text-align:right; color:var(--soft-d)">Fabiana · Jc · Manon · Elena</p>
 <aside>FABIANA · 30 segundos · Apertura
 Hola, somos el equipo g3. Nuestro proyecto estima la utilidad de parcelas de eucalipto a partir de medidas de campo. Primero veremos el problema y el resultado del equipo; después, la aplicación y el proceso técnico. Mi modelo es la regresión logística, que explicaré más adelante.
 Fuente: README.md; reparto-presentacion.md.</aside>
@@ -771,6 +772,20 @@ Fuentes: 04_svm.ipynb, pasos 3–9; resultados/04_svm.json; models/04_svm.joblib
 </div>
 <p class="punch anim" style="--i:4"><b>Hoy:</b> orientación fiable para decidir si un lote merece la pena. <b>Mañana:</b> más precisión entre las calificaciones altas.</p>
 <aside>Cierre para las dos partes. Negocio: más parcelas de best y low, medidas que distingan un lote bueno de uno excelente, y un nivel de confianza en cada respuesta. Código: calibrar probabilidades (el SVM lineal se entrenó sin probability=True, así que dar confianza sería un modelo nuevo), estudiar cómo separar mejor las clases intermedias y good de best (propuesta del notebook de la regresión logística y del análisis de errores), y reentrenar y vigilar cuando haya sitios nuevos. Todo sale del informe técnico y de los notebooks.</aside>
+</section>
+<section id="gracias" data-ponente="Elena" class="dark cover">
+<p class="eyebrow">Equipo g3 · Bootcamp Factoría F5</p>
+<h1 style="margin-bottom:24px">¡Gracias!</h1>
+<p class="lead" style="margin-bottom:56px">¿Preguntas?</p>
+<div class="row" style="gap:24px; margin-bottom:56px">
+<div style="flex:1; padding:28px 30px; border-radius:20px; background:var(--card-d)"><h3 style="font-size:40px; margin-bottom:8px; color:var(--text-d)">Fabiana</h3><p style="font-size:26px; color:var(--soft-d)">Regresión logística</p></div>
+<div style="flex:1; padding:28px 30px; border-radius:20px; background:var(--card-d)"><h3 style="font-size:40px; margin-bottom:8px; color:var(--text-d)">Jc</h3><p style="font-size:26px; color:var(--soft-d)">App y árbol de decisión</p></div>
+<div style="flex:1; padding:28px 30px; border-radius:20px; background:var(--card-d)"><h3 style="font-size:40px; margin-bottom:8px; color:var(--text-d)">Manon</h3><p style="font-size:26px; color:var(--soft-d)">EDA y KNN</p></div>
+<div style="flex:1; padding:28px 30px; border-radius:20px; background:var(--card-d)"><h3 style="font-size:40px; margin-bottom:8px; color:var(--text-d)">Elena</h3><p style="font-size:26px; color:var(--soft-d)">SVM e informe técnico</p></div>
+</div>
+<p style="font-size:30px; margin-bottom:12px"><span style="color:var(--soft-d)">Repositorio:</span> <a href="https://github.com/IA-P1-BCN/g3-Clasificacion-Multiclase"><span style="color:var(--acc-d)">github.com/IA-P1-BCN/g3-Clasificacion-Multiclase</span></a></p>
+<p style="font-size:30px"><span style="color:var(--soft-d)">Presentación:</span> <a href="https://ia-p1-bcn.github.io/g3-Clasificacion-Multiclase/"><span style="color:var(--acc-d)">ia-p1-bcn.github.io/g3-Clasificacion-Multiclase</span></a></p>
+<aside>ELENA · 15 segundos · Gracias por escucharnos. Aquí tenéis el repositorio, con los notebooks, la app y el informe, y la presentación publicada. Si tenéis preguntas, contesta quien más sabe de cada tema: negocio y regresión logística, Fabiana; app y árbol, Jc; datos, validación y KNN, Manon; SVM, test y errores, Elena.</aside>
 </section>
 </div></div>
 <div id="notes"></div>

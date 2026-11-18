@@ -1,6 +1,6 @@
 # Reparto de la presentación entre cuatro personas
 
-Propuesta para la presentación completa ([`presentacion-eucalyptus.html`](presentacion-eucalyptus.html), 25 diapositivas, más la 18 bis): **20 minutos como máximo**, unos **5 minutos por persona** (el profesor pide unos 4, con margen según el número de personas), participación equilibrada y demo de la app.
+Propuesta para la presentación completa ([`presentacion-eucalyptus.html`](presentacion-eucalyptus.html), 26 diapositivas, más la 18 bis): **20 minutos como máximo**, unos **5 minutos por persona** (el profesor pide unos 4, con margen según el número de personas), participación equilibrada y demo de la app.
 
 **Regla del reparto:** cada persona cuenta un bloque seguido de diapositivas. Solo se alterna entre personas en las diapositivas 17 a 20, donde cada una presenta su propio modelo.
 
@@ -13,7 +13,7 @@ El reparto sigue quién hizo cada parte según el historial del repositorio; se 
 | **Fabiana** (regresión logística) | 1 a 6 y 17 | Historia de negocio: problema, solución, resultado y límites; después, su modelo | 5 min | [`modelos/regresion-logistica.html`](modelos/regresion-logistica.html) |
 | **Jc** (app, árbol de decisión) | 7 a 9, 18 y 18 bis | Demo de la app y estructura del código; después, su modelo | 5 min | [`modelos/arbol-decision.html`](modelos/arbol-decision.html) |
 | **Manon** (EDA y KNN) | 10 a 16 y 20 | De los datos a la validación y presentación de los cuatro modelos; después, su modelo | 5 min | [`modelos/knn.html`](modelos/knn.html) |
-| **Elena** (SVM e informe técnico) | 19 y 21 a 25 | Su modelo (el ganador); después, comparación, ganador, test, errores y siguientes pasos | 5 min | [`modelos/svm.html`](modelos/svm.html) |
+| **Elena** (SVM e informe técnico) | 19 y 21 a 26 | Su modelo (el ganador); después, comparación, ganador, test, errores, siguientes pasos y el cierre | 5 min | [`modelos/svm.html`](modelos/svm.html) |
 
 ## Por qué así
 
@@ -70,10 +70,11 @@ El reparto sigue quién hizo cada parte según el historial del repositorio; se 
 | 23 | Evaluación en test | Elena | F1 0,655, accuracy 0,685 y gap −1,1; el test se abrió una sola vez | 1 |
 | 24 | Errores e interpretación | Elena | Errores entre clases vecinas; el vigor es la variable que más pesa | 0,75 |
 | 25 | Siguientes pasos | Elena | Cierre para negocio y para el código | 0,5 |
+| 26 | ¡Gracias! | Elena | Los cuatro integrantes, el enlace al repositorio y a la presentación, y se abren las preguntas | — |
 
 ## Relevos
 
-**Fabiana 1–6 → Jc 7–9 → Manon 10–16 → Fabiana 17 → Jc 18 y 18 bis → Elena 19 → Manon 20 → Elena 21–25**
+**Fabiana 1–6 → Jc 7–9 → Manon 10–16 → Fabiana 17 → Jc 18 y 18 bis → Elena 19 → Manon 20 → Elena 21–26**
 
 - Solo hay vaivén en las diapositivas 17 a 20, y hasta ahí lo orienta la 16: Manon cierra el resumen de los cuatro modelos y cada autor continúa con el suyo.
 - Quien deja la palabra **anuncia a quien viene** («ahora Jc cuenta el árbol») y nadie repite lo que ya se dijo.
@@ -83,7 +84,7 @@ El reparto sigue quién hizo cada parte según el historial del repositorio; se 
 
 - La app tiene que estar **ejecutándose en el equipo desde el que se presenta** (`streamlit run app/main.py`); el enlace de la diapositiva 7 abre `localhost:8501`.
 - Rellenar las diapositivas 17 a 20 con su explicación y sus capturas.
-- Ensayar con **cronómetro**: el límite de 20 minutos es estricto, y 25 diapositivas obligan a pasar rápido por las de datos (10 a 14).
+- Ensayar con **cronómetro**: el límite de 20 minutos es estricto, y 26 diapositivas obligan a pasar rápido por las de datos (10 a 14).
 - La tecla **N** muestra las notas del orador de cada diapositiva.
 - El pie de cada diapositiva dice **quién la presenta** (por ejemplo, «Jc · 7»). Una diapositiva extra no mueve la numeración: lleva `data-bis` en su `<section>` y sale como «18 bis». Si cambia el reparto, se actualiza `PONENTES` en `construir_presentacion.py`.
 - La presentación publicada está en https://ia-p1-bcn.github.io/g3-Clasificacion-Multiclase/ (GitHub Pages, solo la presentación). Se actualiza sola al mergear en `main` cambios en `presentacion-eucalyptus.html` (workflow `publicar-presentacion`; también se puede lanzar a mano desde la pestaña *Actions*).

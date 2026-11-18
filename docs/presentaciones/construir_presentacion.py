@@ -86,7 +86,7 @@ PONENTES = {
     "modelo-arbol-codigo": "Jc",
     "modelo-svm": "Elena",
     "modelo-knn": "Manon",
-    **dict.fromkeys(["comparacion", "ganador", "test", "errores", "final"], "Elena"),
+    **dict.fromkeys(["comparacion", "ganador", "test", "errores", "final", "gracias"], "Elena"),
 }
 
 # Las diapositivas se ocultan con display:none; en impresión hay que devolverles su display.
