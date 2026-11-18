@@ -10,7 +10,7 @@ Las reglas de ML comunes (datos, evaluación, contrato de modelos, app) están e
 - Una persona por algoritmo; `06_conclusiones` lo hacemos entre todos.
 - Todos los notebooks importan la librería común `comun.py` (`from comun import ...`) para cargar y limpiar datos, el baseline, la validación, la evaluación y la conclusión. Es obligatoria: no se reescriben sus funciones en un notebook. Detalle en `docs/acuerdos.md`.
 - `python unir_notebooks.py` los junta, en este orden, en `final.ipynb` (con `nbmerge`). Se commitea ejecutado y se regenera en la PR que cambie un notebook.
-- La presentación se publica en GitHub Pages desde la rama `gh-pages`, que solo contiene la presentación: tras mergear cambios en `docs/presentaciones/presentacion-eucalyptus.html`, `python docs/presentaciones/publicar_pages.py`.
+- La presentación se publica sola en GitHub Pages (solo ella, como `index.html`): el workflow `.github/workflows/publicar-presentacion.yml` se ejecuta al mergear en `main` cambios en `docs/presentaciones/presentacion-eucalyptus.html`.
 - La app (Streamlit) vive en `app/` (`main.py` interfaz, `prediccion.py` lógica sin streamlit) y sus tests en `tests/`. Se arranca con `streamlit run app/main.py` y se prueba con `pytest`.
 
 ## Agent skills
