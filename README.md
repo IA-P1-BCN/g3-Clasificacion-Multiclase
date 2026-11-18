@@ -6,7 +6,7 @@
 
 > El botón de Colab abre `final.ipynb`: los notebooks `00` → `06` juntos, en orden y ya ejecutados, así que se pueden leer sin ejecutar nada. Si quieres ejecutarlo en Colab, la primera celda descarga el repo (`comun.py`, `data/`, `models/`) e instala `requirements.txt`. Si Colab reinicia la sesión para cargar las versiones nuevas, vuelve a darle a *Ejecutar todas*.
 
-## Qué hacemos1
+## Qué hacemos
 Predecimos la **utilidad** (`Utility`) de un lote de semillas de eucalipto para la conservación del suelo, en 5 clases ordenadas: `none` < `low` < `average` < `good` < `best`. Datos: *Eucalyptus Soil Conservation* ([OpenML 188](https://www.openml.org/d/188)), 736 parcelas de ensayo en Nueva Zelanda.
 
 Es el proyecto grupal de clasificación multiclase de Factoría F5, **Nivel Esencial** ([enunciado](docs/business/EXERCISE_SPECS.md)). Entregables: modelo con overfitting < 5 puntos, app en Streamlit, informe y presentaciones.
