@@ -83,6 +83,7 @@ PONENTES = {
     ),
     "modelo-logistica": "Fabiana",
     "modelo-arbol": "Jc",
+    "modelo-arbol-codigo": "Jc",
     "modelo-svm": "Elena",
     "modelo-knn": "Manon",
     **dict.fromkeys(["comparacion", "ganador", "test", "errores", "final"], "Elena"),
@@ -99,7 +100,17 @@ SCRIPT_VISOR = r"""
   var notes = document.getElementById('notes');
   var cur = 0;
 
-  slides.forEach(function (s, i) { s.setAttribute('data-n', i + 1); });
+  // Numeración: una <section data-bis> lleva el número anterior + « bis» (18 bis)
+  var total = 0;
+  slides.forEach(function (s) {
+    if (s.hasAttribute('data-bis')) { s.setAttribute('data-n', total + ' bis'); }
+    else { total += 1; s.setAttribute('data-n', total); }
+  });
+  function etiqueta(i) { return slides[i].getAttribute('data-n').replace(' ', ''); }
+  function porEtiqueta(texto) {
+    for (var k = 0; k < slides.length; k++) { if (etiqueta(k) === texto) return k; }
+    return -1;
+  }
 
   var GEAR = 'M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z';
   Array.prototype.forEach.call(deck.querySelectorAll('x-icon[name="Settings"]'), function (el) {
@@ -112,10 +123,10 @@ SCRIPT_VISOR = r"""
   function show(i) {
     cur = Math.max(0, Math.min(slides.length - 1, i));
     slides.forEach(function (s, k) { s.classList.toggle('active', k === cur); });
-    pos.textContent = (cur + 1) + ' / ' + slides.length;
+    pos.textContent = slides[cur].getAttribute('data-n') + ' / ' + total;
     var a = slides[cur].querySelector('aside');
     notes.textContent = a ? a.textContent : '';
-    try { history.replaceState(null, '', '#' + (cur + 1)); } catch (e) {}
+    try { history.replaceState(null, '', '#' + etiqueta(cur)); } catch (e) {}
   }
   function fit() {
     var s = Math.min(window.innerWidth / 1920, (window.innerHeight - 56) / 1080);
@@ -190,7 +201,7 @@ SCRIPT_VISOR = r"""
     else if (k === 'n' || k === 'N') { notes.classList.toggle('show'); }
   });
   window.addEventListener('resize', fit);
-  window.addEventListener('hashchange', function () { var n = parseInt(location.hash.slice(1), 10); if (n) show(n - 1); });
+  window.addEventListener('hashchange', function () { var k = porEtiqueta(location.hash.slice(1)); if (k >= 0) show(k); });
 
   // Barra
   document.getElementById('btn-notes').onclick = function () { notes.classList.toggle('show'); this.classList.toggle('on'); };
@@ -215,8 +226,7 @@ SCRIPT_VISOR = r"""
   };
 
   fit();
-  var start = parseInt(location.hash.slice(1), 10);
-  show(start ? start - 1 : 0);
+  show(Math.max(0, porEtiqueta(location.hash.slice(1))));
 })();
 """
 
