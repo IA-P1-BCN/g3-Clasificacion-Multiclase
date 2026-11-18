@@ -35,14 +35,14 @@ El reparto sigue quién hizo cada parte según el historial del repositorio; se 
 | 4 | El resultado | Fabiana | Acierta unas 7 de cada 10 parcelas; 34 de los 35 errores son de un solo escalón | 0,75 |
 | 5 | Cuándo ayuda más | Fabiana | 0 de 43 falsas promesas; solo 1 de 48 parcelas buenas descartada | 0,5 |
 | 6 | Cuándo no fiarse | Fabiana | Sin medidas, sitios nuevos y la confusión entre good y best | 0,5 |
-| 7 | La app | Jc | Demo en vivo: elegir el sitio, rellenar las medidas, pulsar Predecir | 2,75 |
+| 7 | La app | Jc | Demo en vivo con cuatro casos, cada uno con su concepto: parcela de validación (pipeline completo, paso 10), sin medidas → none por regla (ADR-0001, fuga de datos), valor imposible (validación de la entrada) y sitio nuevo (ADR-0002) | 2,75 |
 
 ### Parte técnica: datos y validación (≈ 7 min)
 
 | Nº | Diapositiva | Quién | Qué hay que dejar claro | Min |
 |---|---|---|---|---|
 | 8 | Cómo se construyó | Jc | Cambio de parte: de lo que hace el modelo a cómo está hecho | 0,25 |
-| 9 | Estructura del código | Jc | Siete notebooks, `comun.py`, `final.ipynb` y la app con sus tests | 0,75 |
+| 9 | Estructura del código | Jc | Por qué `comun.py` (mismas reglas para comparar los cuatro modelos), `final.ipynb` y la app con 32 tests hechos con TDD (Nivel Avanzado) | 0,75 |
 | 10 | EDA: dos gráficos | Manon | Sin medidas, siempre none; más vigor, mejor clase | 0,75 |
 | 11 | Del EDA a las decisiones | Manon | Cada hallazgo llevó a una decisión (ADR-0001 y ADR-0002) | 0,5 |
 | 12 | Limpieza | Manon | 46 parcelas sin medidas, un diámetro imposible, siete columnas repetidas | 0,5 |
@@ -56,7 +56,7 @@ El reparto sigue quién hizo cada parte según el historial del repositorio; se 
 | Nº | Diapositiva | Quién | Qué hay que dejar claro | Min |
 |---|---|---|---|---|
 | 17 | Regresión logística | Fabiana | Su modelo: qué probó, qué aprendió y por qué no cumple el gap (6,5) | 1,25 |
-| 18 | Árbol de decisión | Jc | Su modelo: el árbol que memorizaba frente al elegido, 14 veces más pequeño | 1,25 |
+| 18 | Árbol de decisión | Jc | Su modelo: el árbol sin límites memoriza (gap 46); la regla del gap elige uno 14 veces más pequeño (10 hojas) con el mismo F1 en CV; el vigor decide el 72 % | 1,25 |
 | 19 | SVM lineal | Elena | Su modelo, el ganador: por qué C = 0,045 y no C = 0,07 | 1,25 |
 | 20 | KNN | Manon | Su modelo: gap de 5,4 aceptado y explicado, no forzado | 1,25 |
 
