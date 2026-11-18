@@ -64,7 +64,7 @@ Aplicando la regla acordada —mayor F1 en toda la validación **entre los que c
 |---|---|---|
 | Train (469 parcelas) | 0.631 | 0.657 |
 | Validación, toda (110) | 0.636 | 0.709 |
-| Validación, solo con medidas (102) | 0.601 | 0.663 |
+| Validación, solo con medidas (95) | 0.601 | 0.663 |
 | Test, todo (111) | 0.655 | 0.685 |
 | Test, solo con medidas (103) | 0.643 | 0.660 |
 
