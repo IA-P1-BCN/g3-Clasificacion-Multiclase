@@ -85,7 +85,7 @@ El reparto sigue quién hizo cada parte según el historial del repositorio; se 
 - Ensayar con **cronómetro**: el límite de 20 minutos es estricto, y 25 diapositivas obligan a pasar rápido por las de datos (10 a 14).
 - La tecla **N** muestra las notas del orador de cada diapositiva.
 - El pie de cada diapositiva dice **quién la presenta** (por ejemplo, «Jc · 7»). Si cambia el reparto, se actualiza `PONENTES` en `construir_presentacion.py`.
-- La presentación publicada está en https://ia-p1-bcn.github.io/g3-Clasificacion-Multiclase/ (GitHub Pages, rama `gh-pages`, solo la presentación). Después de mergear cambios, se publica con `python docs/presentaciones/publicar_pages.py`.
+- La presentación publicada está en https://ia-p1-bcn.github.io/g3-Clasificacion-Multiclase/ (GitHub Pages, solo la presentación). Se actualiza sola al mergear en `main` cambios en `presentacion-eucalyptus.html` (workflow `publicar-presentacion`; también se puede lanzar a mano desde la pestaña *Actions*).
 - Cada persona puede apoyarse en la explicación de su modelo (carpeta [`modelos/`](modelos/)) para las preguntas.
 
 ## Si hay que acortar

@@ -1,0 +1,51 @@
+# Publica solo la presentación en GitHub Pages cada vez que cambia en main
+# (por ejemplo, al mergear una PR). Se sirve como index.html en
+# https://ia-p1-bcn.github.io/g3-Clasificacion-Multiclase/
+name: Publicar la presentación
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - docs/presentaciones/presentacion-eucalyptus.html
+      - .github/workflows/publicar-presentacion.yml
+  workflow_dispatch: # también se puede lanzar a mano desde la pestaña Actions
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Si se mergean dos PR seguidas, solo cuenta la última publicación
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    name: Publicar en GitHub Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - name: Descargar el repo
+        uses: actions/checkout@v4
+
+      - name: Preparar la web (solo la presentación)
+        run: |
+          mkdir _site
+          cp docs/presentaciones/presentacion-eucalyptus.html _site/index.html
+          touch _site/.nojekyll
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+
+      - name: Subir la web
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Desplegar
+        id: despliegue
+        uses: actions/deploy-pages@v4
