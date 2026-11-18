@@ -45,7 +45,7 @@ data/               train, val y test limpios (los genera 01_eda)
 models/             pipeline de cada modelo (.joblib)
 resultados/         cifras de cada modelo (.json) para 06_conclusiones
 docs/               acuerdos, ADRs, enunciado y guías
-docs/presentaciones/ presentación completa en un HTML (negocio, app y código); se abre en el navegador
+docs/presentaciones/ presentación completa en un HTML (negocio, app y código) y construir_presentacion.py, que lo genera
 app/                app de Streamlit: main.py (interfaz) y prediccion.py (lógica)
 tests/              tests de la app (pytest)
 final.ipynb         los notebooks 00 → 06 juntos y ejecutados, con índice
