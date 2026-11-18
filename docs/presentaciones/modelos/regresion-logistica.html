@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regresión logística: utilidad de parcelas de eucalipto</title>
+<!-- Presentación autónoma. Flechas o espacio para moverse, N para las notas del orador.
+     Rellenar los recuadros: clic en el texto entre corchetes para escribir; clic, arrastrar o pegar (Ctrl+V)
+     una imagen en los recuadros de captura. «Guardar mi versión» descarga este mismo fichero con los cambios. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&family=Inter:wght@400;600&display=swap">
+<style>
+section {
+  background: #F5F8FB;
+  color: #12233A;
+  font-family: 'Inter', sans-serif;
+  padding: 128px 128px 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+section h1, section h2, section h3, section p, section ul, section ol, section table { margin: 0; }
+section.dark { background: #12233A; color: #F2F6FA; }
+section.dark.center { justify-content: center; }
+
+/* Encabezado de cada diapositiva */
+.head { display: flex; flex-direction: column; gap: 16px; }
+.kicker { font-size: 24px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #1A7871; }
+h1 { font-family: 'Space Grotesk', sans-serif; font-size: 96px; line-height: 1.05; font-weight: 700; color: #F2F6FA; }
+h2 { font-family: 'Space Grotesk', sans-serif; font-size: 64px; line-height: 1.1; font-weight: 700; color: #12233A; }
+.rule { width: 96px; height: 8px; background: #239189; border-radius: 4px; }
+
+/* Texto */
+.lead { font-size: 36px; font-weight: 600; line-height: 1.35; color: #12233A; }
+.body { font-size: 30px; line-height: 1.45; color: #2B3D52; }
+.list { font-size: 32px; line-height: 1.4; color: #2B3D52; padding-left: 40px; display: flex; flex-direction: column; gap: 20px; }
+.mono { font-family: monospace; font-weight: 600; color: #1D5A8E; }
+
+/* Tarjetas */
+.cards { display: flex; gap: 32px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.card { flex: 1; background: #FFFFFF; border: 2px solid #D3DEE8; border-radius: 20px; padding: 36px 40px; display: flex; flex-direction: column; gap: 12px; }
+.card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; line-height: 1.2; color: #12233A; }
+.card p { font-size: 26px; line-height: 1.4; color: #3A4B5F; }
+.card .stat { font-family: 'Space Grotesk', sans-serif; font-size: 88px; font-weight: 700; line-height: 1; color: #2467A0; }
+.card .stat-sm { font-family: 'Space Grotesk', sans-serif; font-size: 44px; font-weight: 700; line-height: 1.1; color: #12233A; }
+.card .steps { font-size: 28px; line-height: 1.4; color: #2B3D52; padding-left: 36px; display: flex; flex-direction: column; gap: 12px; }
+
+/* Colores de las cinco clases de Utility */
+.card.k-none { border-top: 10px solid #6B7B8D; }
+.card.k-low { border-top: 10px solid #2467A0; }
+.card.k-avg { border-top: 10px solid #4A79B8; }
+.card.k-good { border-top: 10px solid #239189; }
+.card.k-best { border-top: 10px solid #D98A1C; }
+.card .t-none { color: #55657A; }
+.card .t-low { color: #2467A0; }
+.card .t-avg { color: #3A68A6; }
+.card .t-good { color: #1A7871; }
+.card .t-best { color: #A35A00; }
+.card .t-bad { color: #B3261E; }
+
+/* Destacado */
+.note { background: #E4F1F0; border-left: 8px solid #239189; border-radius: 0 12px 12px 0; padding: 28px 40px; font-size: 28px; line-height: 1.4; font-weight: 600; color: #12233A; }
+.note.blue { background: #E6EEF7; border-left-color: #2467A0; }
+
+/* Agenda */
+.rows { display: flex; flex-direction: column; }
+.row { display: flex; gap: 40px; align-items: baseline; padding: 20px 0; border-top: 2px solid #D3DEE8; }
+.row .n { width: 72px; font-family: 'Space Grotesk', sans-serif; font-size: 40px; font-weight: 700; color: #1A7871; }
+.row .t { width: 360px; font-size: 34px; font-weight: 700; color: #12233A; }
+.row .d { flex: 1; font-size: 28px; line-height: 1.35; color: #3A4B5F; }
+
+/* Tabla de hiperparámetros */
+.tbl { width: 100%; border-collapse: collapse; font-size: 32px; }
+.tbl th { text-align: left; font-size: 24px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #55657A; padding: 16px 28px; border-bottom: 3px solid #12233A; }
+.tbl td { padding: 26px 28px; border-bottom: 2px solid #D3DEE8; color: #12233A; }
+.tbl tr.pick td { background: #E4F1F0; font-weight: 700; }
+.ok { color: #1A7871; font-weight: 700; }
+.bad { color: #B3261E; font-weight: 700; }
+
+/* Barras de importancia */
+.bars { display: flex; flex-direction: column; gap: 32px; }
+.bar-row { display: flex; align-items: center; gap: 32px; }
+.bar-label { width: 420px; font-size: 30px; font-weight: 600; color: #12233A; }
+.bar-track { flex: 1; height: 44px; background: #E3EAF1; border-radius: 8px; display: flex; }
+.bar-fill { height: 44px; background: #2467A0; border-radius: 8px; transform-origin: left center; animation: grow 0.7s ease-out 0.2s both; }
+.bar-fill.top { background: #239189; }
+.bar-val { width: 120px; font-size: 32px; font-weight: 700; text-align: right; color: #12233A; }
+
+/* Pie de página */
+.footer { position: absolute; left: 128px; bottom: 64px; width: 1664px; display: flex; justify-content: space-between; }
+.footer p { font-size: 24px; letter-spacing: 0.08em; color: #6A7A8C; }
+
+/* Variantes oscuras */
+.dark .kicker { color: #5CC6BD; }
+.dark h2 { color: #F2F6FA; }
+.dark .body { color: #C9D5E2; }
+.dark .list { color: #E3EBF3; }
+.dark .note { background: #1C3452; border-left-color: #5CC6BD; color: #F2F6FA; }
+.dark .footer p { color: #8EA1B6; }
+.cover-sub { font-size: 40px; line-height: 1.35; color: #C9D5E2; width: 1300px; }
+.cover-meta { font-size: 28px; color: #9FB0C3; }
+
+/* Movimiento: entrada escalonada de tarjetas y filas */
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } }
+@keyframes grow { from { transform: scaleX(0); } }
+.cards > div, .grid2 > div, .rows > div, .bar-row, .note { animation: rise 0.5s ease-out both; }
+.cards > div:nth-child(2), .grid2 > div:nth-child(2), .rows > div:nth-child(2), .bar-row:nth-child(2) { animation-delay: 0.08s; }
+.cards > div:nth-child(3), .grid2 > div:nth-child(3), .rows > div:nth-child(3), .bar-row:nth-child(3) { animation-delay: 0.16s; }
+.cards > div:nth-child(4), .grid2 > div:nth-child(4), .rows > div:nth-child(4), .bar-row:nth-child(4) { animation-delay: 0.24s; }
+.cards > div:nth-child(5), .rows > div:nth-child(5), .bar-row:nth-child(5) { animation-delay: 0.32s; }
+.note { animation-delay: 0.4s; }
+.tbl.compact td { padding: 18px 28px; }
+.tbl tr.dim td { color: #55657A; }
+
+.tbl.small { font-size: 26px; }
+.tbl.small td { padding: 12px 24px; }
+.tbl.small th { padding: 12px 24px; }
+.pos { color: #1A7871; font-weight: 700; }
+.neg { color: #B3261E; font-weight: 700; }
+
+
+* { margin: 0; }
+p, li, h1, h2, h3, td, th { overflow-wrap: break-word; }
+table:not([class]) { border-collapse: separate; border-spacing: 0; border: solid #0003; border-width: 2px 0 0 2px; }
+table:not([class]) th, table:not([class]) td { padding: .35em .6em; text-align: left; border: solid #0003; border-width: 0 2px 2px 0; }
+html, body { margin: 0; height: 100%; background: #0B1A15; overflow: hidden; }
+#stage { position: fixed; inset: 0 0 56px 0; overflow: hidden; }
+#deck { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center center; }
+#deck > section { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; box-sizing: border-box; overflow: hidden; }
+#deck > section:not(.active) { display: none !important; }
+aside { display: none; }
+x-shape, x-icon { display: block; }
+x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%, 58% 100%, 58% 72%, 0 72%); }
+.shotbox { cursor: pointer; }
+.shotbox:hover { border-color: #1F7A58; }
+.ph[contenteditable="true"] { outline: none; cursor: text; }
+.ph[contenteditable="true"]:hover, .ph[contenteditable="true"]:focus { background: #CFE6DA; border-radius: 6px; }
+#bar { position: fixed; left: 0; right: 0; bottom: 0; height: 56px; display: flex; align-items: center; justify-content: center; gap: 10px; background: #10241E; color: #E9EFE9; font: 600 16px/1 Inter, Arial, sans-serif; z-index: 10; }
+#bar button { font: inherit; color: #E9EFE9; background: #1B3A30; border: 1px solid #2F5A4A; border-radius: 8px; padding: 9px 14px; cursor: pointer; }
+#bar button:hover { background: #24503F; }
+#bar button.on { background: #1F7A58; }
+#bar .sep { width: 1px; height: 24px; background: #2F5A4A; margin: 0 6px; }
+#pos { min-width: 70px; text-align: center; }
+#notes { position: fixed; left: 0; right: 0; bottom: 56px; max-height: 28vh; overflow: auto; padding: 14px 24px; background: rgba(16, 36, 30, .96); color: #E9EFE9; font: 400 20px/1.4 Inter, Arial, sans-serif; display: none; z-index: 9; }
+#notes.show { display: block; }
+@media print {
+  html, body { height: auto; overflow: visible; background: none; }
+  #stage { position: static; overflow: visible; }
+  #deck { position: static; transform: none !important; width: auto; height: auto; }
+  #deck > section { display: var(--sec-display, block) !important; position: relative; break-after: page; page-break-after: always; }
+  #bar, #notes { display: none !important; }
+  .anim { animation: none !important; }
+  @page { size: 1920px 1080px; margin: 0; }
+}
+:root { --sec-display: flex; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="deck">
+<section id="portada" class="dark center" data-transition="fade">
+<p class="kicker">Proyecto de Machine Learning</p>
+<h1>Regresión logística:<br>utilidad de parcelas de eucalipto</h1>
+<p class="cover-sub">Cómo estimamos la probabilidad de cada clase y por qué el modelo se queda corto</p>
+<div class="rule"></div>
+<p class="cover-meta">Historia #38  ·  Notebook 02_regresion_logistica.ipynb  ·  Dataset Eucalyptus</p>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>1</p></div>
+</section>
+<section id="agenda">
+<div class="head"><p class="kicker">Introducción</p><h2>Qué vamos a explicar</h2></div>
+<div class="rows">
+<div class="row"><p class="n">01</p><p class="t">El problema</p><p class="d">Qué significa predecir la utilidad de una parcela.</p></div>
+<div class="row"><p class="n">02</p><p class="t">Datos y modelo</p><p class="d">Qué recibe el modelo y cómo calcula probabilidades.</p></div>
+<div class="row"><p class="n">03</p><p class="t">Preprocesado</p><p class="d">Variables, regla none y el baseline a superar.</p></div>
+<div class="row"><p class="n">04</p><p class="t">Ajuste de C</p><p class="d">Cómo elegimos la regularización sin sobreajustar.</p></div>
+<div class="row"><p class="n">05</p><p class="t">Resultados</p><p class="d">Qué acierta, dónde se equivoca y qué aprendemos.</p></div>
+</div>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>2</p></div>
+</section>
+<section id="problema">
+<div class="head"><p class="kicker">Problema</p><h2>1. El problema: clasificar la utilidad</h2></div>
+<p class="lead">Queremos predecir la variable objetivo <b>Utility</b> para cada parcela de eucalipto.</p>
+<div class="cards">
+<div class="card k-none"><h3 class="t-none">none</h3><p>Sin utilidad</p></div>
+<div class="card k-low"><h3 class="t-low">low</h3><p>Baja</p></div>
+<div class="card k-avg"><h3 class="t-avg">average</h3><p>Media</p></div>
+<div class="card k-good"><h3 class="t-good">good</h3><p>Buena</p></div>
+<div class="card k-best"><h3 class="t-best">best</h3><p>Muy buena</p></div>
+</div>
+<p class="body">Es un problema de <b>clasificación multiclase</b>: asignamos a cada parcela una de cinco etiquetas. Métrica principal: <b>F1 macro</b>.</p>
+<p class="note blue">Las clases tienen un orden natural: none &lt; low &lt; average &lt; good &lt; best.</p>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>3</p></div>
+</section>
+<section id="datos">
+<div class="head"><p class="kicker">Datos</p><h2>2. Datos de trabajo</h2></div>
+<div class="cards">
+<div class="card k-low"><h3 class="t-low">TRAIN · 70%</h3><p class="stat-sm">469 filas</p><p>Para aprender y para la validación cruzada.</p></div>
+<div class="card k-good"><h3 class="t-good">VALIDACIÓN · 15%</h3><p class="stat-sm">110 filas</p><p>Para medir el rendimiento del modelo elegido.</p></div>
+<div class="card k-best"><h3 class="t-best">TEST · 15%</h3><p class="stat-sm">No se lee</p><p>Se reserva para la comparación final en 06_conclusiones.</p></div>
+</div>
+<table class="tbl compact">
+<tr><th>Conjunto</th><th>none</th><th>low</th><th>average</th><th>good</th><th>best</th></tr>
+<tr><td>Train</td><td>80</td><td>75</td><td>91</td><td>150</td><td>73</td></tr>
+<tr><td>Validación</td><td>27</td><td>16</td><td>19</td><td>32</td><td>16</td></tr>
+</table>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>4</p></div>
+</section>
+<section id="modelo">
+<div class="head"><p class="kicker">Modelo</p><h2>3. ¿Qué hace una regresión logística?</h2></div>
+<p class="body">A pesar del nombre, es un modelo de <b>clasificación</b>: calcula la probabilidad de cada una de las cinco clases y elige la más probable.</p>
+<div class="cards">
+<div class="card k-low"><p class="stat-sm t-low">1</p><h3>Pondera</h3><p>Cada variable recibe un coeficiente por clase: positivo la favorece, negativo la penaliza.</p></div>
+<div class="card k-avg"><p class="stat-sm t-avg">2</p><h3>Calcula</h3><p>Suma ponderada para cada clase, convertida en probabilidades que suman 1.</p></div>
+<div class="card k-good"><p class="stat-sm t-good">3</p><h3>Decide</h3><p>Devuelve la clase con mayor probabilidad.</p></div>
+</div>
+<p class="note blue">C controla la regularización L2: un C pequeño limita mucho los coeficientes (modelo más simple); uno grande les deja crecer.</p>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>5</p></div>
+</section>
+<section id="preprocesado">
+<div class="head"><p class="kicker">Preprocesado</p><h2>4. Variables y preparación de los datos</h2></div>
+<div class="grid2">
+<div class="card k-low"><h3>8 medidas numéricas</h3><p>Imputar con la mediana y estandarizar, para que las unidades no dominen la regularización.</p></div>
+<div class="card k-avg"><h3>Abbrev y Sp</h3><p>One-hot encoding; las categorías con menos de 3 parcelas en el fold se agrupan.</p></div>
+<div class="card k-none"><h3>Excluidas</h3><p>Rep y PMCno: identificadores del ensayo, sin relación con la utilidad.</p></div>
+<div class="card k-good"><h3>Variables correlacionadas</h3><p>DBH, Ht y las formas se conservan: L2 limita los coeficientes sin quitar medidas a mano.</p></div>
+</div>
+<p class="note">También se compara class_weight=None frente a "balanced" para atender al desbalance moderado, solo con CV sobre train.</p>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>6</p></div>
+</section>
+<section id="sin-medidas">
+<div class="head"><p class="kicker">Calidad de datos</p><h2>5. Una regla especial: parcelas sin medidas</h2></div>
+<div class="cards">
+<div class="card k-good"><h3 class="t-good">VALIDACIÓN</h3><p class="stat">15</p><p>parcelas sin ninguna medida: las 15 son de verdad none. En train hay 0.</p></div>
+<div class="card k-low"><h3 class="t-low">Cómo se mide</h3><p>Las métricas se dan sobre toda la validación (110) y aparte solo sobre las parcelas con medidas (95).</p></div>
+</div>
+<p class="body">Según la decisión <b>ADR-0001</b>, si faltan las seis medidas del árbol, se responde <b>none</b> sin llamar al modelo.</p>
+<p class="note">La regla acierta esas parcelas por construcción; no conviene mezclarlas con lo que aprende la regresión logística.</p>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>7</p></div>
+</section>
+<section id="baseline">
+<div class="head"><p class="kicker">Baseline</p><h2>6. Baseline: el mínimo que debemos superar</h2></div>
+<p class="body">Un <b>DummyClassifier</b> que responde siempre la clase más frecuente, good (y none a las parcelas sin medidas, por la regla).</p>
+<table class="tbl compact">
+<tr><th>Evaluación del Dummy</th><th>F1 macro</th><th>Accuracy</th></tr>
+<tr><td>Validación cruzada (train)</td><td>0,097</td><td>0,320</td></tr>
+<tr><td>Toda la validación</td><td>0,244</td><td>0,427</td></tr>
+<tr><td>Solo con medidas</td><td>0,101</td><td>0,337</td></tr>
+</table>
+<p class="note">Escala del equipo: menos de 10 puntos sobre el Dummy = no supera; de 10 a 25 = supera poco; 25 o más = supera claramente.</p>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>8</p></div>
+</section>
+<section id="rejilla">
+<div class="head"><p class="kicker">Ajuste</p><h2>7. Búsqueda de hiperparámetros</h2></div>
+<p class="body">Con <b>GridSearchCV</b>, StratifiedKFold de 5 folds y F1 macro probamos 20 combinaciones.</p>
+<div class="cards">
+<div class="card k-low"><h3 class="t-low">C · 10 valores</h3><p>De 0,001 a 30. Un C pequeño implica mayor regularización.</p></div>
+<div class="card k-good"><h3 class="t-good">class_weight</h3><p>None o "balanced" (los errores en clases pequeñas pesan más).</p></div>
+</div>
+<p class="note">Regla de elección: mayor F1 macro en CV entre las combinaciones con gap train–CV menor de 5 puntos; en empate, el menor C. La rejilla se fija antes de mirar la validación.</p>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>9</p></div>
+</section>
+<section id="eleccion">
+<div class="head"><p class="kicker">Ajuste</p><h2>8. Elegir sin sobreajuste</h2></div>
+<div class="cards">
+<div class="card k-best"><h3>Mejor F1 "a ciegas"</h3><p class="stat-sm">C = 10 · balanced</p><p>F1 CV 0,584, pero F1 train 0,795:</p><p class="stat-sm t-bad">Gap 21,1 puntos</p></div>
+<div class="card k-good"><h3>Modelo elegido</h3><p class="stat-sm t-good">C = 0,003 · balanced</p><p>F1 CV 0,434 con un gap de CV de 3,4 puntos.</p><p>Regularización muy fuerte.</p></div>
+</div>
+<p class="note">Para cumplir el gap hay que regularizar tanto que el rendimiento cae: el precio de no sobreajustar es un modelo limitado.</p>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>10</p></div>
+</section>
+<section id="validacion">
+<div class="head"><p class="kicker">Validación</p><h2>9. Validación cruzada: al azar y por sitio</h2></div>
+<div class="cards">
+<div class="card k-low"><h3 class="t-low">StratifiedKFold</h3><p class="stat">0,434</p><p>F1 macro ± 0,021 · gap de CV 3,4 puntos. Reparte las parcelas al azar conservando las clases.</p></div>
+<div class="card k-best"><h3 class="t-best">StratifiedGroupKFold</h3><p class="stat t-best">0,397</p><p>F1 macro ± 0,030. Agrupa por sitio (Abbrev): el sitio de validación no se ha visto en train.</p></div>
+</div>
+<p class="note">ADR-0002: con sitios nuevos el F1 cae 3,75 puntos. El resultado del reparto común no se puede trasladar sin más a sitios nuevos.</p>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>11</p></div>
+</section>
+<section id="evaluacion">
+<div class="head"><p class="kicker">Resultados</p><h2>10. Evaluación en validación</h2></div>
+<div class="cards">
+<div class="card k-good"><h3>F1 macro · total</h3><p class="stat t-good">0,468</p><p>Toda la validación, incluida la regla none.</p></div>
+<div class="card k-low"><h3>F1 macro · medidas</h3><p class="stat">0,429</p><p>Solo las 95 parcelas que pasan por el modelo.</p></div>
+<div class="card k-avg"><h3>Frente al Dummy</h3><p class="stat t-avg">+22</p><p>puntos en toda la validación (supera poco); +33 solo con medidas.</p></div>
+</div>
+<p class="body">Accuracy: 0,509 en toda la validación y 0,432 solo con medidas. En validación cruzada supera al Dummy en unos 34 puntos (0,434 frente a 0,097).</p>
+<p class="note">Aprende algo, pero su nivel de F1 es "flojo" en los dos casos.</p>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>12</p></div>
+</section>
+<section id="sobreajuste">
+<div class="head"><p class="kicker">Sobreajuste</p><h2>11. Control de sobreajuste</h2></div>
+<div class="cards">
+<div class="card k-low"><h3>F1 train</h3><p class="stat">0,494</p><p>Modelo entrenado con las 469 parcelas.</p></div>
+<div class="card k-good"><h3>F1 validación con medidas</h3><p class="stat t-good">0,429</p><p>Solo parcelas que pasan por el modelo.</p></div>
+<div class="card k-best"><h3>Gap</h3><p class="stat t-bad">6,5</p><p>puntos: no cumple el límite de 5.</p></div>
+</div>
+<p class="body">En CV el gap era de 3,4 puntos. Posibles causas: el modelo final se entrena con todo train y la validación solo tiene 95 parcelas medidas. Esta ejecución no permite aislar una causa única.</p>
+<p class="note">Se conserva la elección hecha con train y se documenta el incumplimiento: no se usa la validación para elegir otra configuración.</p>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>13</p></div>
+</section>
+<section id="clases">
+<div class="head"><p class="kicker">Resultados</p><h2>12. ¿Qué clases reconoce mejor?</h2></div>
+<div class="cards">
+<div class="card k-none"><h3 class="t-none">none</h3><p class="stat-sm">F1 0,78</p><p>Recall 0,93</p></div>
+<div class="card k-low"><h3 class="t-low">low</h3><p class="stat-sm">F1 0,55</p><p>Recall 0,56</p></div>
+<div class="card k-avg"><h3 class="t-avg">average</h3><p class="stat-sm">F1 0,24</p><p>Recall 0,16</p></div>
+<div class="card k-good"><h3 class="t-good">good</h3><p class="stat-sm">F1 0,34</p><p>Recall 0,25</p></div>
+<div class="card k-best"><h3 class="t-best">best</h3><p class="stat-sm">F1 0,43</p><p>Recall 0,69</p></div>
+</div>
+<p class="body">Separa mejor los extremos (none, best) que las clases intermedias. average y good son su punto débil: recall de 0,16 y 0,25.</p>
+<p class="note">Al revés que los otros modelos: con class_weight="balanced" se atreve con best (recall 0,69), pero a costa de good.</p>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>14</p></div>
+</section>
+<section id="errores">
+<div class="head"><p class="kicker">Interpretación</p><h2>13. Análisis de errores</h2></div>
+<div class="cards">
+<div class="card k-low"><p class="stat">54</p><h3>errores de 110</h3><p>Casi la mitad de la validación.</p></div>
+<div class="card k-good"><p class="stat t-good">41</p><h3>errores vecinos</h3><p>Confusiones entre clases contiguas.</p></div>
+<div class="card k-best"><p class="stat t-best">13</p><h3>errores graves</h3><p>Saltan dos o más niveles de la escala.</p></div>
+</div>
+<p class="body">Más frecuentes: good → best (21), low → none (7), average → none (5) y average → low (5).</p>
+<p class="note">Un vigor alto favorece tanto good como best, con más peso en best: compatible con la confusión principal. Es una hipótesis, no una causa demostrada.</p>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>15</p></div>
+</section>
+<section id="coeficientes">
+<div class="head"><p class="kicker">Interpretación</p><h2>14. ¿Qué variables aportan más?</h2></div>
+<p class="body"><b>Vig</b> es el coeficiente de mayor magnitud media, seguido por la altura (Ht) y el diámetro (DBH). Así cambia el coeficiente de Vig de una clase a otra:</p>
+<table class="tbl compact">
+<tr><th>Variable</th><th>none</th><th>low</th><th>average</th><th>good</th><th>best</th></tr>
+<tr class="pick"><td>Vig</td><td><span class="neg">−0,220</span></td><td><span class="neg">−0,097</span></td><td>0,017</td><td><span class="pos">0,109</span></td><td><span class="pos">0,191</span></td></tr>
+<tr><td>Ht</td><td><span class="neg">−0,097</span></td><td><span class="neg">−0,099</span></td><td>−0,014</td><td><span class="pos">0,084</span></td><td><span class="pos">0,125</span></td></tr>
+<tr><td>DBH</td><td><span class="neg">−0,104</span></td><td><span class="neg">−0,067</span></td><td>−0,008</td><td><span class="pos">0,080</span></td><td><span class="pos">0,099</span></td></tr>
+</table>
+<p class="note blue">Más vigor, altura y diámetro empujan hacia las clases altas. Las variables correlacionadas se reparten los coeficientes: es una lectura del modelo, no una causa.</p>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>16</p></div>
+</section>
+<section id="guardar">
+<div class="head"><p class="kicker">Despliegue</p><h2>15. Guardar el modelo y requisitos</h2></div>
+<p class="body">Pipeline completo en <span class="mono">models/02_regresion_logistica.joblib</span> (7,3 KB). Recargado en una sesión de Python nueva, reproduce las 110 predicciones.</p>
+<table class="tbl compact">
+<tr><th>Requisito</th><th>Resultado</th><th>Cumple</th></tr>
+<tr><td>Multiclase (≥ 3 clases)</td><td>5 clases</td><td><span class="ok">Sí</span></td></tr>
+<tr><td>Overfitting &lt; 5 puntos</td><td>6,5 puntos</td><td><span class="bad">No</span></td></tr>
+<tr><td>Supera claramente al Dummy (con medidas)</td><td>+33 puntos</td><td><span class="ok">Sí</span></td></tr>
+<tr><td>Regla none sin medidas (ADR-0001)</td><td>15 parcelas</td><td><span class="ok">Sí</span></td></tr>
+<tr><td>StratifiedKFold + chequeo por sitio (ADR-0002)</td><td>0,434 / 0,397</td><td><span class="ok">Sí</span></td></tr>
+<tr><td>Pipeline guardado</td><td>02_regresion_logistica.joblib</td><td><span class="ok">Sí</span></td></tr>
+</table>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>17</p></div>
+</section>
+<section id="conclusiones" class="dark">
+<div class="head"><p class="kicker">Conclusiones</p><h2>¿Qué nos llevamos del experimento?</h2></div>
+<ul class="list">
+<li>Regresión logística con C = 0,003 y class_weight="balanced": F1 macro 0,468 en validación (0,429 solo con medidas).</li>
+<li>Supera al Dummy: +22 puntos en toda la validación y +33 con medidas.</li>
+<li>Gap de 6,5 puntos: no cumple el criterio, aunque en CV era de 3,4.</li>
+<li>Vig es la variable con más peso; separa bien los extremos pero falla en average y good.</li>
+<li>No es candidato a modelo ganador; el test se reserva para 06_conclusiones.</li>
+</ul>
+<p class="note">Mensaje clave: un gap pequeño en CV no basta para afirmar que un modelo es bueno.</p>
+<div class="footer"><p>REGRESIÓN LOGÍSTICA · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>18</p></div>
+</section>
+</div></div>
+<div id="notes"></div>
+<div id="bar">
+  <button id="prev" title="Anterior (←)">◀</button><span id="pos">1</span><button id="next" title="Siguiente (→)">▶</button>
+  <span class="sep"></span>
+  <button id="btn-notes" title="Notas del orador (N)">Notas</button>
+  <button id="btn-edit" title="Editar cualquier texto de las diapositivas">Editar texto</button>
+  <button id="btn-save" title="Descarga este HTML con tus cambios">Guardar mi versión</button>
+  <button id="btn-print" title="Imprimir o guardar como PDF">PDF</button>
+</div>
+<script>
+
+(function () {
+  var deck = document.getElementById('deck');
+  var slides = Array.prototype.slice.call(deck.children).filter(function (n) { return n.tagName === 'SECTION'; });
+  var pos = document.getElementById('pos');
+  var notes = document.getElementById('notes');
+  var cur = 0;
+
+  slides.forEach(function (s, i) { s.setAttribute('data-n', i + 1); });
+
+  var GEAR = 'M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z';
+  Array.prototype.forEach.call(deck.querySelectorAll('x-icon[name="Settings"]'), function (el) {
+    if (!el.querySelector('svg')) {
+      el.innerHTML = '<svg viewBox="0 0 24 24" width="100%" height="100%" fill="currentColor"><path d="' + GEAR + '"/></svg>';
+    }
+  });
+  Array.prototype.forEach.call(deck.querySelectorAll('a[href^="http"]'), function (a) { a.target = '_blank'; a.rel = 'noopener'; });
+
+  function show(i) {
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, k) { s.classList.toggle('active', k === cur); });
+    pos.textContent = (cur + 1) + ' / ' + slides.length;
+    var a = slides[cur].querySelector('aside');
+    notes.textContent = a ? a.textContent : '';
+    try { history.replaceState(null, '', '#' + (cur + 1)); } catch (e) {}
+  }
+  function fit() {
+    var s = Math.min(window.innerWidth / 1920, (window.innerHeight - 56) / 1080);
+    deck.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  }
+
+  // Placeholders de texto
+  Array.prototype.forEach.call(deck.querySelectorAll('.ph'), function (el) {
+    el.setAttribute('contenteditable', 'true');
+    el.addEventListener('focus', function () {
+      if (el.classList.contains('ph')) {
+        var r = document.createRange(); r.selectNodeContents(el);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      }
+    });
+    el.addEventListener('input', function () { el.classList.remove('ph'); });
+  });
+
+  // Placeholders de captura: clic, arrastrar o pegar
+  var picker = document.createElement('input');
+  picker.type = 'file'; picker.accept = 'image/*'; picker.style.display = 'none';
+  document.body.appendChild(picker);
+  var pickTarget = null, hoverBox = null;
+  function setImage(box, file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      box.innerHTML = '';
+      var img = new Image();
+      img.src = reader.result; img.alt = 'Captura';
+      img.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:12px';
+      box.appendChild(img);
+      box.style.padding = '0'; box.style.borderStyle = 'solid'; box.style.borderColor = 'transparent';
+    };
+    reader.readAsDataURL(file);
+  }
+  Array.prototype.forEach.call(deck.querySelectorAll('.shotbox'), function (box) {
+    box.tabIndex = 0;
+    box.title = 'Haz clic, arrastra una imagen o pega una captura (Ctrl+V)';
+    box.addEventListener('mouseenter', function () { hoverBox = box; });
+    box.addEventListener('mouseleave', function () { if (hoverBox === box) hoverBox = null; });
+    box.addEventListener('dragover', function (e) { e.preventDefault(); });
+    box.addEventListener('drop', function (e) {
+      e.preventDefault();
+      var f = e.dataTransfer.files[0];
+      if (f && f.type.indexOf('image') === 0) setImage(box, f);
+    });
+    box.addEventListener('click', function () { pickTarget = box; picker.value = ''; picker.click(); });
+  });
+  picker.addEventListener('change', function () {
+    if (picker.files[0] && pickTarget) setImage(pickTarget, picker.files[0]);
+  });
+  document.addEventListener('paste', function (e) {
+    var ae = document.activeElement;
+    var box = (ae && ae.closest && ae.closest('.shotbox')) || hoverBox;
+    if (!box || !e.clipboardData) return;
+    for (var i = 0; i < e.clipboardData.items.length; i++) {
+      var it = e.clipboardData.items[i];
+      if (it.type.indexOf('image') === 0) { setImage(box, it.getAsFile()); e.preventDefault(); break; }
+    }
+  });
+
+  // Navegación
+  document.getElementById('prev').onclick = function () { show(cur - 1); };
+  document.getElementById('next').onclick = function () { show(cur + 1); };
+  document.addEventListener('keydown', function (e) {
+    if (e.target && (e.target.isContentEditable || e.target.tagName === 'INPUT')) return;
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'PageDown' || k === ' ') { show(cur + 1); e.preventDefault(); }
+    else if (k === 'ArrowLeft' || k === 'PageUp') { show(cur - 1); e.preventDefault(); }
+    else if (k === 'Home') { show(0); }
+    else if (k === 'End') { show(slides.length - 1); }
+    else if (k === 'n' || k === 'N') { notes.classList.toggle('show'); }
+  });
+  window.addEventListener('resize', fit);
+  window.addEventListener('hashchange', function () { var n = parseInt(location.hash.slice(1), 10); if (n) show(n - 1); });
+
+  // Barra
+  document.getElementById('btn-notes').onclick = function () { notes.classList.toggle('show'); this.classList.toggle('on'); };
+  document.getElementById('btn-edit').onclick = function () {
+    var on = deck.getAttribute('contenteditable') !== 'true';
+    deck.setAttribute('contenteditable', on ? 'true' : 'false');
+    this.classList.toggle('on', on);
+  };
+  document.getElementById('btn-print').onclick = function () { window.print(); };
+  document.getElementById('btn-save').onclick = function () {
+    var wasOn = deck.getAttribute('contenteditable') === 'true';
+    deck.setAttribute('contenteditable', 'false');
+    var clone = document.documentElement.cloneNode(true);
+    var d = clone.querySelector('#deck'); d.removeAttribute('contenteditable');
+    var inputs = clone.querySelectorAll('input[type=file]'); Array.prototype.forEach.call(inputs, function (n) { n.remove(); });
+    var html = '<!doctype html>\n' + clone.outerHTML;
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+    a.download = decodeURIComponent(location.pathname.split('/').pop() || 'presentacion-eucalyptus.html');
+    document.body.appendChild(a); a.click(); a.remove();
+    if (wasOn) deck.setAttribute('contenteditable', 'true');
+  };
+
+  fit();
+  var start = parseInt(location.hash.slice(1), 10);
+  show(start ? start - 1 : 0);
+})();
+
+</script>
+</body>
+</html>

@@ -177,15 +177,13 @@ a { color: var(--acc); text-decoration: underline; }
 
 * { margin: 0; }
 p, li, h1, h2, h3, td, th { overflow-wrap: break-word; }
-table { border-collapse: separate; border-spacing: 0; border: solid #0003; border-width: 2px 0 0 2px; }
-th, td { padding: .35em .6em; text-align: left; border: solid #0003; border-width: 0 2px 2px 0; }
+table:not([class]) { border-collapse: separate; border-spacing: 0; border: solid #0003; border-width: 2px 0 0 2px; }
+table:not([class]) th, table:not([class]) td { padding: .35em .6em; text-align: left; border: solid #0003; border-width: 0 2px 2px 0; }
 html, body { margin: 0; height: 100%; background: #0B1A15; overflow: hidden; }
 #stage { position: fixed; inset: 0 0 56px 0; overflow: hidden; }
 #deck { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center center; }
-#deck > section { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; box-sizing: border-box; overflow: hidden; display: none; }
-#deck > section.active { display: block; }
-#deck > section::after { content: attr(data-n); }
-#deck > section.cover::before, #deck > section.cover::after { content: none; }
+#deck > section { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; box-sizing: border-box; overflow: hidden; }
+#deck > section:not(.active) { display: none !important; }
 aside { display: none; }
 x-shape, x-icon { display: block; }
 x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%, 58% 100%, 58% 72%, 0 72%); }
@@ -205,11 +203,14 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
   html, body { height: auto; overflow: visible; background: none; }
   #stage { position: static; overflow: visible; }
   #deck { position: static; transform: none !important; width: auto; height: auto; }
-  #deck > section { display: block !important; position: relative; break-after: page; page-break-after: always; }
+  #deck > section { display: var(--sec-display, block) !important; position: relative; break-after: page; page-break-after: always; }
   #bar, #notes { display: none !important; }
   .anim { animation: none !important; }
   @page { size: 1920px 1080px; margin: 0; }
 }
+
+#deck > section::after { content: attr(data-n); }
+#deck > section.cover::before, #deck > section.cover::after { content: none; }
 
 </style>
 </head>
@@ -765,7 +766,7 @@ x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%
     var html = '<!doctype html>\n' + clone.outerHTML;
     var a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
-    a.download = 'presentacion-eucalyptus.html';
+    a.download = decodeURIComponent(location.pathname.split('/').pop() || 'presentacion-eucalyptus.html');
     document.body.appendChild(a); a.click(); a.remove();
     if (wasOn) deck.setAttribute('contenteditable', 'true');
   };

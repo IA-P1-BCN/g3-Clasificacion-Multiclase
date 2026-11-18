@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modelo SVM: utilidad de parcelas de eucalipto</title>
+<!-- Presentación autónoma. Flechas o espacio para moverse, N para las notas del orador.
+     Rellenar los recuadros: clic en el texto entre corchetes para escribir; clic, arrastrar o pegar (Ctrl+V)
+     una imagen en los recuadros de captura. «Guardar mi versión» descarga este mismo fichero con los cambios. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&family=Inter:wght@400;600&display=swap">
+<style>
+section {
+  background: #F5F8FB;
+  color: #12233A;
+  font-family: 'Inter', sans-serif;
+  padding: 128px 128px 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+section h1, section h2, section h3, section p, section ul, section ol, section table { margin: 0; }
+section.dark { background: #12233A; color: #F2F6FA; }
+section.dark.center { justify-content: center; }
+
+/* Encabezado de cada diapositiva */
+.head { display: flex; flex-direction: column; gap: 16px; }
+.kicker { font-size: 24px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #1A7871; }
+h1 { font-family: 'Space Grotesk', sans-serif; font-size: 96px; line-height: 1.05; font-weight: 700; color: #F2F6FA; }
+h2 { font-family: 'Space Grotesk', sans-serif; font-size: 64px; line-height: 1.1; font-weight: 700; color: #12233A; }
+.rule { width: 96px; height: 8px; background: #239189; border-radius: 4px; }
+
+/* Texto */
+.lead { font-size: 36px; font-weight: 600; line-height: 1.35; color: #12233A; }
+.body { font-size: 30px; line-height: 1.45; color: #2B3D52; }
+.list { font-size: 32px; line-height: 1.4; color: #2B3D52; padding-left: 40px; display: flex; flex-direction: column; gap: 20px; }
+.mono { font-family: monospace; font-weight: 600; color: #1D5A8E; }
+
+/* Tarjetas */
+.cards { display: flex; gap: 32px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.card { flex: 1; background: #FFFFFF; border: 2px solid #D3DEE8; border-radius: 20px; padding: 36px 40px; display: flex; flex-direction: column; gap: 12px; }
+.card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; line-height: 1.2; color: #12233A; }
+.card p { font-size: 26px; line-height: 1.4; color: #3A4B5F; }
+.card .stat { font-family: 'Space Grotesk', sans-serif; font-size: 88px; font-weight: 700; line-height: 1; color: #2467A0; }
+.card .stat-sm { font-family: 'Space Grotesk', sans-serif; font-size: 44px; font-weight: 700; line-height: 1.1; color: #12233A; }
+.card .steps { font-size: 28px; line-height: 1.4; color: #2B3D52; padding-left: 36px; display: flex; flex-direction: column; gap: 12px; }
+
+/* Colores de las cinco clases de Utility */
+.card.k-none { border-top: 10px solid #6B7B8D; }
+.card.k-low { border-top: 10px solid #2467A0; }
+.card.k-avg { border-top: 10px solid #4A79B8; }
+.card.k-good { border-top: 10px solid #239189; }
+.card.k-best { border-top: 10px solid #D98A1C; }
+.card .t-none { color: #55657A; }
+.card .t-low { color: #2467A0; }
+.card .t-avg { color: #3A68A6; }
+.card .t-good { color: #1A7871; }
+.card .t-best { color: #A35A00; }
+.card .t-bad { color: #B3261E; }
+
+/* Destacado */
+.note { background: #E4F1F0; border-left: 8px solid #239189; border-radius: 0 12px 12px 0; padding: 28px 40px; font-size: 28px; line-height: 1.4; font-weight: 600; color: #12233A; }
+.note.blue { background: #E6EEF7; border-left-color: #2467A0; }
+
+/* Agenda */
+.rows { display: flex; flex-direction: column; }
+.row { display: flex; gap: 40px; align-items: baseline; padding: 20px 0; border-top: 2px solid #D3DEE8; }
+.row .n { width: 72px; font-family: 'Space Grotesk', sans-serif; font-size: 40px; font-weight: 700; color: #1A7871; }
+.row .t { width: 360px; font-size: 34px; font-weight: 700; color: #12233A; }
+.row .d { flex: 1; font-size: 28px; line-height: 1.35; color: #3A4B5F; }
+
+/* Tabla de hiperparámetros */
+.tbl { width: 100%; border-collapse: collapse; font-size: 32px; }
+.tbl th { text-align: left; font-size: 24px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #55657A; padding: 16px 28px; border-bottom: 3px solid #12233A; }
+.tbl td { padding: 26px 28px; border-bottom: 2px solid #D3DEE8; color: #12233A; }
+.tbl tr.pick td { background: #E4F1F0; font-weight: 700; }
+.ok { color: #1A7871; font-weight: 700; }
+.bad { color: #B3261E; font-weight: 700; }
+
+/* Barras de importancia */
+.bars { display: flex; flex-direction: column; gap: 32px; }
+.bar-row { display: flex; align-items: center; gap: 32px; }
+.bar-label { width: 420px; font-size: 30px; font-weight: 600; color: #12233A; }
+.bar-track { flex: 1; height: 44px; background: #E3EAF1; border-radius: 8px; display: flex; }
+.bar-fill { height: 44px; background: #2467A0; border-radius: 8px; transform-origin: left center; animation: grow 0.7s ease-out 0.2s both; }
+.bar-fill.top { background: #239189; }
+.bar-val { width: 120px; font-size: 32px; font-weight: 700; text-align: right; color: #12233A; }
+
+/* Pie de página */
+.footer { position: absolute; left: 128px; bottom: 64px; width: 1664px; display: flex; justify-content: space-between; }
+.footer p { font-size: 24px; letter-spacing: 0.08em; color: #6A7A8C; }
+
+/* Variantes oscuras */
+.dark .kicker { color: #5CC6BD; }
+.dark h2 { color: #F2F6FA; }
+.dark .body { color: #C9D5E2; }
+.dark .list { color: #E3EBF3; }
+.dark .note { background: #1C3452; border-left-color: #5CC6BD; color: #F2F6FA; }
+.dark .footer p { color: #8EA1B6; }
+.cover-sub { font-size: 40px; line-height: 1.35; color: #C9D5E2; width: 1300px; }
+.cover-meta { font-size: 28px; color: #9FB0C3; }
+
+/* Movimiento: entrada escalonada de tarjetas y filas */
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } }
+@keyframes grow { from { transform: scaleX(0); } }
+.cards > div, .grid2 > div, .rows > div, .bar-row, .note { animation: rise 0.5s ease-out both; }
+.cards > div:nth-child(2), .grid2 > div:nth-child(2), .rows > div:nth-child(2), .bar-row:nth-child(2) { animation-delay: 0.08s; }
+.cards > div:nth-child(3), .grid2 > div:nth-child(3), .rows > div:nth-child(3), .bar-row:nth-child(3) { animation-delay: 0.16s; }
+.cards > div:nth-child(4), .grid2 > div:nth-child(4), .rows > div:nth-child(4), .bar-row:nth-child(4) { animation-delay: 0.24s; }
+.cards > div:nth-child(5), .rows > div:nth-child(5), .bar-row:nth-child(5) { animation-delay: 0.32s; }
+.note { animation-delay: 0.4s; }
+
+
+* { margin: 0; }
+p, li, h1, h2, h3, td, th { overflow-wrap: break-word; }
+table:not([class]) { border-collapse: separate; border-spacing: 0; border: solid #0003; border-width: 2px 0 0 2px; }
+table:not([class]) th, table:not([class]) td { padding: .35em .6em; text-align: left; border: solid #0003; border-width: 0 2px 2px 0; }
+html, body { margin: 0; height: 100%; background: #0B1A15; overflow: hidden; }
+#stage { position: fixed; inset: 0 0 56px 0; overflow: hidden; }
+#deck { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center center; }
+#deck > section { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; box-sizing: border-box; overflow: hidden; }
+#deck > section:not(.active) { display: none !important; }
+aside { display: none; }
+x-shape, x-icon { display: block; }
+x-shape[kind="arrow-right"] { clip-path: polygon(0 28%, 58% 28%, 58% 0, 100% 50%, 58% 100%, 58% 72%, 0 72%); }
+.shotbox { cursor: pointer; }
+.shotbox:hover { border-color: #1F7A58; }
+.ph[contenteditable="true"] { outline: none; cursor: text; }
+.ph[contenteditable="true"]:hover, .ph[contenteditable="true"]:focus { background: #CFE6DA; border-radius: 6px; }
+#bar { position: fixed; left: 0; right: 0; bottom: 0; height: 56px; display: flex; align-items: center; justify-content: center; gap: 10px; background: #10241E; color: #E9EFE9; font: 600 16px/1 Inter, Arial, sans-serif; z-index: 10; }
+#bar button { font: inherit; color: #E9EFE9; background: #1B3A30; border: 1px solid #2F5A4A; border-radius: 8px; padding: 9px 14px; cursor: pointer; }
+#bar button:hover { background: #24503F; }
+#bar button.on { background: #1F7A58; }
+#bar .sep { width: 1px; height: 24px; background: #2F5A4A; margin: 0 6px; }
+#pos { min-width: 70px; text-align: center; }
+#notes { position: fixed; left: 0; right: 0; bottom: 56px; max-height: 28vh; overflow: auto; padding: 14px 24px; background: rgba(16, 36, 30, .96); color: #E9EFE9; font: 400 20px/1.4 Inter, Arial, sans-serif; display: none; z-index: 9; }
+#notes.show { display: block; }
+@media print {
+  html, body { height: auto; overflow: visible; background: none; }
+  #stage { position: static; overflow: visible; }
+  #deck { position: static; transform: none !important; width: auto; height: auto; }
+  #deck > section { display: var(--sec-display, block) !important; position: relative; break-after: page; page-break-after: always; }
+  #bar, #notes { display: none !important; }
+  .anim { animation: none !important; }
+  @page { size: 1920px 1080px; margin: 0; }
+}
+:root { --sec-display: flex; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="deck">
+<section id="portada" class="dark center" data-transition="fade">
+<p class="kicker">Proyecto de Machine Learning</p>
+<h1>Modelo SVM:<br>utilidad de parcelas de eucalipto</h1>
+<p class="cover-sub">Cómo clasificamos parcelas en cinco niveles y comprobamos que el modelo generaliza</p>
+<div class="rule"></div>
+<p class="cover-meta">Historia #40  ·  Notebook 04_svm.ipynb  ·  Dataset Eucalyptus</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>1</p></div>
+</section>
+<section id="agenda">
+<div class="head"><p class="kicker">Introducción</p><h2>Qué vamos a explicar</h2></div>
+<div class="rows">
+<div class="row"><p class="n">01</p><p class="t">El problema</p><p class="d">Qué significa predecir la utilidad de una parcela.</p></div>
+<div class="row"><p class="n">02</p><p class="t">Los datos</p><p class="d">Qué información recibe el modelo y cómo se separan los conjuntos.</p></div>
+<div class="row"><p class="n">03</p><p class="t">El preprocesado</p><p class="d">Cómo tratamos valores ausentes, escalas y categorías.</p></div>
+<div class="row"><p class="n">04</p><p class="t">El SVM</p><p class="d">Cómo lo entrenamos, validamos y ajustamos.</p></div>
+<div class="row"><p class="n">05</p><p class="t">Los resultados</p><p class="d">Qué acierta, dónde se equivoca y qué aprendemos.</p></div>
+</div>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>2</p></div>
+</section>
+<section id="problema">
+<div class="head"><p class="kicker">Problema</p><h2>1. El problema: clasificar la utilidad</h2></div>
+<p class="lead">Queremos predecir la variable objetivo <b>Utility</b> para cada parcela de eucalipto.</p>
+<div class="cards">
+<div class="card k-none"><h3 class="t-none">none</h3><p>Sin utilidad</p></div>
+<div class="card k-low"><h3 class="t-low">low</h3><p>Baja</p></div>
+<div class="card k-avg"><h3 class="t-avg">average</h3><p>Media</p></div>
+<div class="card k-good"><h3 class="t-good">good</h3><p>Buena</p></div>
+<div class="card k-best"><h3 class="t-best">best</h3><p>Muy buena</p></div>
+</div>
+<p class="body">Es un problema de <b>clasificación multiclase</b>: no buscamos un número continuo, sino asignar una de cinco etiquetas.</p>
+<p class="note blue">Las clases tienen un orden natural: none &lt; low &lt; average &lt; good &lt; best.</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>3</p></div>
+</section>
+<section id="datos">
+<div class="head"><p class="kicker">Datos</p><h2>2. Datos y separación de conjuntos</h2></div>
+<div class="cards">
+<div class="card k-low"><h3 class="t-low">TRAIN · 70%</h3><p class="stat-sm">469 filas</p><p>Se utiliza para aprender los patrones.</p></div>
+<div class="card k-good"><h3 class="t-good">VALIDACIÓN · 15%</h3><p class="stat-sm">110 filas</p><p>Se utiliza para medir el rendimiento durante el desarrollo.</p></div>
+<div class="card k-best"><h3 class="t-best">TEST · 15%</h3><p class="stat-sm">Reservado</p><p>Para la evaluación final en 06_conclusiones. No se consulta en este notebook.</p></div>
+</div>
+<p class="body">La división es <b>estratificada, con semilla 42</b>: intenta conservar la proporción de clases en cada grupo. El notebook trabaja con train.csv y val.csv; el test permanece apartado para evitar utilizarlo antes de tiempo.</p>
+<p class="note blue">Distribución en train: none 80 · low 75 · average 91 · good 150 · best 73</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>4</p></div>
+</section>
+<section id="variables">
+<div class="head"><p class="kicker">Variables</p><h2>3. ¿Qué pistas utiliza el modelo?</h2></div>
+<div class="grid2">
+<div class="card k-low"><h3>Medidas numéricas</h3><p>DBH (diámetro), Ht (altura), Surv (supervivencia) y Vig (vigor).</p></div>
+<div class="card k-avg"><h3>Forma del árbol</h3><p>Ins_res, Stem_Fm, Crown_Fm y Brnch_Fm, relacionadas con características del árbol.</p></div>
+<div class="card k-good"><h3>Sitio · Abbrev</h3><p>Identifica dónde está la parcela; el análisis previo detectó que el sitio influye en la clase.</p></div>
+<div class="card k-none"><h3>Variables excluidas</h3><p>Rep y PMCno por ser identificadores; Sp por su alta dispersión y porque no mejoraba el F1 de validación cruzada.</p></div>
+</div>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>5</p></div>
+</section>
+<section id="sin-medidas">
+<div class="head"><p class="kicker">Calidad de datos</p><h2>4. Una regla especial: parcelas sin medidas</h2></div>
+<div class="cards">
+<div class="card k-low"><h3 class="t-low">TRAIN</h3><p class="stat">0</p><p>parcelas sin medidas: se retiraron del entrenamiento.</p></div>
+<div class="card k-good"><h3 class="t-good">VALIDACIÓN</h3><p class="stat">15</p><p>parcelas sin medidas: las 15 pertenecen a la clase none.</p></div>
+</div>
+<p class="body">Según la decisión <b>ADR-0001</b>, si faltan las seis medidas del árbol, no se llama al SVM: la predicción es <b>none</b> directamente.</p>
+<p class="note">Es una regla de negocio/datos que se aplica antes o fuera del modelo.</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>6</p></div>
+</section>
+<section id="preprocesado">
+<div class="head"><p class="kicker">Preprocesado</p><h2>5. Preprocesado: preparar los datos</h2></div>
+<div class="cards">
+<div class="card k-low"><h3 class="t-low">Variables numéricas</h3><ol class="steps"><li>Imputar valores ausentes con la mediana.</li><li>Estandarizar para poner las variables en escalas comparables.</li></ol></div>
+<div class="card k-good"><h3 class="t-good">Variable categórica: Abbrev</h3><ol class="steps"><li>Imputar ausencias con la categoría más frecuente.</li><li>One-hot encoding: convertir cada sitio en columnas binarias.</li></ol></div>
+</div>
+<p class="body"><b>¿Por qué escalar?</b> SVM es sensible a la escala: sin estandarizar, una variable con números grandes podría influir más solo por su magnitud.</p>
+<p class="note">Todo se integra en un Pipeline y se ajusta únicamente con train para evitar fuga de información.</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>7</p></div>
+</section>
+<section id="baseline">
+<div class="head"><p class="kicker">Baseline</p><h2>6. Baseline: el mínimo que debemos superar</h2></div>
+<p class="lead">Antes de valorar el SVM, necesitamos una referencia sencilla.</p>
+<div class="cards">
+<div class="card k-none"><h3>DummyClassifier</h3><p>No aprende relaciones entre variables: siempre predice la clase más frecuente, good. Mantiene la regla none para parcelas sin medidas.</p></div>
+<div class="card k-low"><h3>Resultado en validación</h3><p class="stat">0,244</p><p>F1 macro en toda la validación · Accuracy = 0,427</p></div>
+</div>
+<p class="note">Este es el punto de comparación: el SVM debe superar claramente al Dummy para demostrar que aprende patrones útiles.</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>8</p></div>
+</section>
+<section id="svm">
+<div class="head"><p class="kicker">Modelo</p><h2>7. ¿Qué hace un SVM?</h2></div>
+<p class="body"><b>SVM</b> significa Support Vector Machine (máquina de vectores de soporte). Es un algoritmo supervisado que busca una frontera que separe las clases.</p>
+<div class="cards">
+<div class="card k-low"><p class="stat-sm t-low">1</p><h3>Aprende</h3><p>Busca una frontera de decisión a partir de ejemplos etiquetados.</p></div>
+<div class="card k-avg"><p class="stat-sm t-avg">2</p><h3>Compara</h3><p>Para una parcela nueva, analiza en qué lado de las fronteras encaja.</p></div>
+<div class="card k-good"><p class="stat-sm t-good">3</p><h3>Predice</h3><p>Devuelve una de las cinco categorías de Utility.</p></div>
+</div>
+<p class="note blue">En este experimento se utiliza un SVM lineal: las fronteras de decisión son lineales en el espacio de variables preprocesadas.</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>9</p></div>
+</section>
+<section id="validacion">
+<div class="head"><p class="kicker">Validación</p><h2>8. Validación cruzada: comprobar la estabilidad</h2></div>
+<div class="cards">
+<div class="card k-low"><h3 class="t-low">StratifiedKFold</h3><p>Divide train en 5 partes (folds), conservando aproximadamente la proporción de clases.</p><p>En cada ronda entrena con cuatro partes y valida con la quinta; después promedia los resultados.</p></div>
+<div class="card k-good"><h3 class="t-good">StratifiedGroupKFold</h3><p>Repite la evaluación agrupando por sitio (Abbrev).</p><p>Validar por sitio ayuda a detectar si el modelo se beneficia demasiado de haber visto parcelas del mismo lugar.</p></div>
+</div>
+<p class="note">ADR-0002: comparar ambas validaciones para entender el efecto del sitio.</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>10</p></div>
+</section>
+<section id="sobreajuste">
+<div class="head"><p class="kicker">Ajuste</p><h2>9. Sobreajuste y parámetro C</h2></div>
+<div class="cards">
+<div class="card k-best"><h3>Primer intento · C = 1</h3><p class="stat-sm">F1 CV = 0,568</p><p class="stat-sm t-bad">Gap = 15,0 puntos</p><p>Supera el límite de 5: sobreajuste.</p></div>
+<div class="card k-low"><h3>¿Qué controla C?</h3><p>C regula cuánto penalizamos los errores de entrenamiento.</p><p>Un C menor hace al modelo más conservador; uno mayor permite ajustarse más a los datos de train.</p></div>
+</div>
+<p class="note"><b>Gap</b> = F1 macro de train − F1 macro de validación. Si el resultado en train es mucho mejor, puede que el modelo esté memorizando en lugar de generalizar.</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>11</p></div>
+</section>
+<section id="busqueda">
+<div class="head"><p class="kicker">Ajuste</p><h2>10. Búsqueda de hiperparámetros</h2></div>
+<p class="body">Con <b>GridSearchCV</b> probamos distintos valores de C y comparamos F1 macro y gap.</p>
+<table class="tbl">
+<tr><th>Valor de C</th><th>F1 CV</th><th>Gap</th><th>Criterio gap &lt; 5</th></tr>
+<tr><td>C = 0,070</td><td>0,584</td><td>6,3</td><td><span class="bad">No cumple</span></td></tr>
+<tr class="pick"><td>C = 0,045</td><td>0,582</td><td>4,5</td><td><span class="ok">Cumple</span></td></tr>
+<tr><td>C = 1,000</td><td>0,568</td><td>15,0</td><td><span class="bad">No cumple</span></td></tr>
+</table>
+<p class="note">Se elige C = 0,045: casi conserva el mejor F1, pero mantiene el gap por debajo de 5 puntos.</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>12</p></div>
+</section>
+<section id="evaluacion">
+<div class="head"><p class="kicker">Resultados</p><h2>11. Evaluación final en validación</h2></div>
+<div class="cards">
+<div class="card k-good"><h3>F1 macro · total</h3><p class="stat t-good">0,636</p><p>Toda la validación, incluida la regla none.</p></div>
+<div class="card k-low"><h3>F1 macro · medidas</h3><p class="stat">0,601</p><p>Solo parcelas que pasan por el SVM.</p></div>
+<div class="card k-avg"><h3>Gap final</h3><p class="stat t-avg">3,0</p><p>puntos: cumple el máximo de menos de 5.</p></div>
+</div>
+<p class="body">Accuracy: 0,709 en toda la validación y 0,663 solo con medidas. La métrica principal del proyecto, sin embargo, es F1 macro.</p>
+<p class="note">El Dummy obtiene 0,244 de F1 macro en toda la validación: el SVM lo supera en 39,2 puntos.</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>13</p></div>
+</section>
+<section id="clases">
+<div class="head"><p class="kicker">Resultados</p><h2>12. ¿Qué clases reconoce mejor?</h2></div>
+<div class="cards">
+<div class="card k-none"><h3 class="t-none">none</h3><p class="stat-sm">F1 0,84</p><p>Recall 0,89</p></div>
+<div class="card k-low"><h3 class="t-low">low</h3><p class="stat-sm">F1 0,52</p><p>Recall 0,44</p></div>
+<div class="card k-avg"><h3 class="t-avg">average</h3><p class="stat-sm">F1 0,63</p><p>Recall 0,58</p></div>
+<div class="card k-good"><h3 class="t-good">good</h3><p class="stat-sm">F1 0,79</p><p>Recall 1,00</p></div>
+<div class="card k-best"><h3 class="t-best">best</h3><p class="stat-sm">F1 0,40</p><p>Recall 0,25</p></div>
+</div>
+<p class="body"><b>good</b> tiene recall 1,00: encuentra todas las parcelas good, aunque también absorbe algunas parcelas de otras clases. <b>best</b> es el punto débil: solo recupera el 25% de los casos reales.</p>
+<p class="note">Precision de best = 1,00: cuando el modelo predice best, acierta; pero lo predice muy pocas veces.</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>14</p></div>
+</section>
+<section id="errores">
+<div class="head"><p class="kicker">Interpretación</p><h2>13. Análisis de errores</h2></div>
+<div class="cards">
+<div class="card k-low"><p class="stat">32</p><h3>errores</h3><p>De 95 parcelas con medidas, 32 se clasificaron incorrectamente.</p></div>
+<div class="card k-good"><p class="stat t-good">30</p><h3>errores vecinos</h3><p>La mayoría son confusiones entre clases contiguas.</p></div>
+<div class="card k-best"><p class="stat t-best">2</p><h3>errores graves</h3><p>Solo dos saltan dos niveles en la escala ordenada.</p></div>
+</div>
+<p class="body">Errores más frecuentes: best → good (12), average → good (5), low → none (5) y low → average (4).</p>
+<p class="note">El modelo tiende a elegir good y le cuesta separar good de best. La mayor parte de los fallos ocurre en los límites entre categorías.</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>15</p></div>
+</section>
+<section id="importancia">
+<div class="head"><p class="kicker">Interpretación</p><h2>14. ¿Qué variables aportan más?</h2></div>
+<div class="bars">
+<div class="bar-row"><p class="bar-label">Vigor · Vig</p><div class="bar-track"><div class="bar-fill top" style="width:100%"></div></div><p class="bar-val">0,265</p></div>
+<div class="bar-row"><p class="bar-label">Supervivencia · Surv</p><div class="bar-track"><div class="bar-fill" style="width:49%"></div></div><p class="bar-val">0,130</p></div>
+<div class="bar-row"><p class="bar-label">Altura · Ht</p><div class="bar-track"><div class="bar-fill" style="width:26%"></div></div><p class="bar-val">0,069</p></div>
+<div class="bar-row"><p class="bar-label">Diámetro · DBH</p><div class="bar-track"><div class="bar-fill" style="width:24%"></div></div><p class="bar-val">0,064</p></div>
+<div class="bar-row"><p class="bar-label">Sitio · Abbrev</p><div class="bar-track"><div class="bar-fill" style="width:21%"></div></div><p class="bar-val">0,056</p></div>
+</div>
+<p class="note blue">La importancia se estima midiendo cuánto cae el F1 macro al desordenar una variable (permutation importance).</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>16</p></div>
+</section>
+<section id="guardar">
+<div class="head"><p class="kicker">Despliegue</p><h2>15. Guardar el modelo para reutilizarlo</h2></div>
+<ul class="list">
+<li>Se guarda el Pipeline completo: preprocesado + SVM.</li>
+<li>Archivo generado: <span class="mono">models/04_svm.joblib</span>.</li>
+<li>Se comprueba que, al recargarlo, mantiene las mismas predicciones.</li>
+<li>Las cifras se guardan en <span class="mono">resultados/04_svm.json</span> para compararlas en 06_conclusiones.</li>
+</ul>
+<p class="note">La aplicación debe aplicar también la regla none mediante <span class="mono">predecir_con_regla</span>: esa regla no forma parte del Pipeline.</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>17</p></div>
+</section>
+<section id="conclusiones" class="dark">
+<div class="head"><p class="kicker">Conclusiones</p><h2>¿Qué nos llevamos del experimento?</h2></div>
+<ul class="list">
+<li>El SVM lineal elegido utiliza C = 0,045 y obtiene F1 macro 0,636 en validación.</li>
+<li>El gap final es 3 puntos: cumple el criterio de sobreajuste inferior a 5.</li>
+<li>Supera claramente al Dummy y reconoce especialmente bien good y none.</li>
+<li>Su principal limitación es distinguir best de good; el vigor es la variable más influyente.</li>
+<li>El test queda reservado para la comparación final de modelos.</li>
+</ul>
+<p class="note">Mensaje clave: no elegimos solo el modelo con mejor nota, sino el que equilibra rendimiento y capacidad de generalizar.</p>
+<div class="footer"><p>MODELO SVM · CLASIFICACIÓN DE PARCELAS DE EUCALIPTO</p><p>18</p></div>
+</section>
+</div></div>
+<div id="notes"></div>
+<div id="bar">
+  <button id="prev" title="Anterior (←)">◀</button><span id="pos">1</span><button id="next" title="Siguiente (→)">▶</button>
+  <span class="sep"></span>
+  <button id="btn-notes" title="Notas del orador (N)">Notas</button>
+  <button id="btn-edit" title="Editar cualquier texto de las diapositivas">Editar texto</button>
+  <button id="btn-save" title="Descarga este HTML con tus cambios">Guardar mi versión</button>
+  <button id="btn-print" title="Imprimir o guardar como PDF">PDF</button>
+</div>
+<script>
+
+(function () {
+  var deck = document.getElementById('deck');
+  var slides = Array.prototype.slice.call(deck.children).filter(function (n) { return n.tagName === 'SECTION'; });
+  var pos = document.getElementById('pos');
+  var notes = document.getElementById('notes');
+  var cur = 0;
+
+  slides.forEach(function (s, i) { s.setAttribute('data-n', i + 1); });
+
+  var GEAR = 'M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z';
+  Array.prototype.forEach.call(deck.querySelectorAll('x-icon[name="Settings"]'), function (el) {
+    if (!el.querySelector('svg')) {
+      el.innerHTML = '<svg viewBox="0 0 24 24" width="100%" height="100%" fill="currentColor"><path d="' + GEAR + '"/></svg>';
+    }
+  });
+  Array.prototype.forEach.call(deck.querySelectorAll('a[href^="http"]'), function (a) { a.target = '_blank'; a.rel = 'noopener'; });
+
+  function show(i) {
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, k) { s.classList.toggle('active', k === cur); });
+    pos.textContent = (cur + 1) + ' / ' + slides.length;
+    var a = slides[cur].querySelector('aside');
+    notes.textContent = a ? a.textContent : '';
+    try { history.replaceState(null, '', '#' + (cur + 1)); } catch (e) {}
+  }
+  function fit() {
+    var s = Math.min(window.innerWidth / 1920, (window.innerHeight - 56) / 1080);
+    deck.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  }
+
+  // Placeholders de texto
+  Array.prototype.forEach.call(deck.querySelectorAll('.ph'), function (el) {
+    el.setAttribute('contenteditable', 'true');
+    el.addEventListener('focus', function () {
+      if (el.classList.contains('ph')) {
+        var r = document.createRange(); r.selectNodeContents(el);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      }
+    });
+    el.addEventListener('input', function () { el.classList.remove('ph'); });
+  });
+
+  // Placeholders de captura: clic, arrastrar o pegar
+  var picker = document.createElement('input');
+  picker.type = 'file'; picker.accept = 'image/*'; picker.style.display = 'none';
+  document.body.appendChild(picker);
+  var pickTarget = null, hoverBox = null;
+  function setImage(box, file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      box.innerHTML = '';
+      var img = new Image();
+      img.src = reader.result; img.alt = 'Captura';
+      img.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:12px';
+      box.appendChild(img);
+      box.style.padding = '0'; box.style.borderStyle = 'solid'; box.style.borderColor = 'transparent';
+    };
+    reader.readAsDataURL(file);
+  }
+  Array.prototype.forEach.call(deck.querySelectorAll('.shotbox'), function (box) {
+    box.tabIndex = 0;
+    box.title = 'Haz clic, arrastra una imagen o pega una captura (Ctrl+V)';
+    box.addEventListener('mouseenter', function () { hoverBox = box; });
+    box.addEventListener('mouseleave', function () { if (hoverBox === box) hoverBox = null; });
+    box.addEventListener('dragover', function (e) { e.preventDefault(); });
+    box.addEventListener('drop', function (e) {
+      e.preventDefault();
+      var f = e.dataTransfer.files[0];
+      if (f && f.type.indexOf('image') === 0) setImage(box, f);
+    });
+    box.addEventListener('click', function () { pickTarget = box; picker.value = ''; picker.click(); });
+  });
+  picker.addEventListener('change', function () {
+    if (picker.files[0] && pickTarget) setImage(pickTarget, picker.files[0]);
+  });
+  document.addEventListener('paste', function (e) {
+    var ae = document.activeElement;
+    var box = (ae && ae.closest && ae.closest('.shotbox')) || hoverBox;
+    if (!box || !e.clipboardData) return;
+    for (var i = 0; i < e.clipboardData.items.length; i++) {
+      var it = e.clipboardData.items[i];
+      if (it.type.indexOf('image') === 0) { setImage(box, it.getAsFile()); e.preventDefault(); break; }
+    }
+  });
+
+  // Navegación
+  document.getElementById('prev').onclick = function () { show(cur - 1); };
+  document.getElementById('next').onclick = function () { show(cur + 1); };
+  document.addEventListener('keydown', function (e) {
+    if (e.target && (e.target.isContentEditable || e.target.tagName === 'INPUT')) return;
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'PageDown' || k === ' ') { show(cur + 1); e.preventDefault(); }
+    else if (k === 'ArrowLeft' || k === 'PageUp') { show(cur - 1); e.preventDefault(); }
+    else if (k === 'Home') { show(0); }
+    else if (k === 'End') { show(slides.length - 1); }
+    else if (k === 'n' || k === 'N') { notes.classList.toggle('show'); }
+  });
+  window.addEventListener('resize', fit);
+  window.addEventListener('hashchange', function () { var n = parseInt(location.hash.slice(1), 10); if (n) show(n - 1); });
+
+  // Barra
+  document.getElementById('btn-notes').onclick = function () { notes.classList.toggle('show'); this.classList.toggle('on'); };
+  document.getElementById('btn-edit').onclick = function () {
+    var on = deck.getAttribute('contenteditable') !== 'true';
+    deck.setAttribute('contenteditable', on ? 'true' : 'false');
+    this.classList.toggle('on', on);
+  };
+  document.getElementById('btn-print').onclick = function () { window.print(); };
+  document.getElementById('btn-save').onclick = function () {
+    var wasOn = deck.getAttribute('contenteditable') === 'true';
+    deck.setAttribute('contenteditable', 'false');
+    var clone = document.documentElement.cloneNode(true);
+    var d = clone.querySelector('#deck'); d.removeAttribute('contenteditable');
+    var inputs = clone.querySelectorAll('input[type=file]'); Array.prototype.forEach.call(inputs, function (n) { n.remove(); });
+    var html = '<!doctype html>\n' + clone.outerHTML;
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+    a.download = decodeURIComponent(location.pathname.split('/').pop() || 'presentacion-eucalyptus.html');
+    document.body.appendChild(a); a.click(); a.remove();
+    if (wasOn) deck.setAttribute('contenteditable', 'true');
+  };
+
+  fit();
+  var start = parseInt(location.hash.slice(1), 10);
+  show(start ? start - 1 : 0);
+})();
+
+</script>
+</body>
+</html>
