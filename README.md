@@ -51,7 +51,7 @@ tests/              tests de la app (pytest)
 final.ipynb         los notebooks 00 → 06 juntos y ejecutados, con índice
 ```
 
-**Presentación:** abrir el [HTML completo](docs/presentaciones/presentacion-eucalyptus.html) en el navegador; `N` muestra las notas. La intervención de Fabiana (diapositivas 1–6 y 17) incluye un guion de unos 5 minutos y los gráficos de regresión logística, según el [reparto de 20 minutos](docs/presentaciones/reparto-presentacion.md). Su [explicación ampliada](docs/presentaciones/modelos/regresion-logistica.html) sirve de apoyo para preguntas.
+**Presentación:** publicada en [GitHub Pages](https://ia-p1-bcn.github.io/g3-Clasificacion-Multiclase/) (solo la presentación; se actualiza con `python docs/presentaciones/publicar_pages.py`), o abrir el [HTML completo](docs/presentaciones/presentacion-eucalyptus.html) en el navegador; `N` muestra las notas. La intervención de Fabiana (diapositivas 1–6 y 17) incluye un guion de unos 5 minutos y los gráficos de regresión logística, según el [reparto de 20 minutos](docs/presentaciones/reparto-presentacion.md). Su [explicación ampliada](docs/presentaciones/modelos/regresion-logistica.html) sirve de apoyo para preguntas.
 
 ## Empezar
 ```bash
