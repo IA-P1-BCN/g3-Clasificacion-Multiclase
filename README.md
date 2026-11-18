@@ -6,7 +6,7 @@
 
 > El botón de Colab abre `final.ipynb`: los notebooks `00` → `06` juntos, en orden y ya ejecutados, así que se pueden leer sin ejecutar nada. Si quieres ejecutarlo en Colab, la primera celda descarga el repo (`comun.py`, `data/`, `models/`) e instala `requirements.txt`. Si Colab reinicia la sesión para cargar las versiones nuevas, vuelve a darle a *Ejecutar todas*.
 
-## Qué hacemos
+## Qué hacemos1
 Predecimos la **utilidad** (`Utility`) de un lote de semillas de eucalipto para la conservación del suelo, en 5 clases ordenadas: `none` < `low` < `average` < `good` < `best`. Datos: *Eucalyptus Soil Conservation* ([OpenML 188](https://www.openml.org/d/188)), 736 parcelas de ensayo en Nueva Zelanda.
 
 Es el proyecto grupal de clasificación multiclase de Factoría F5, **Nivel Esencial** ([enunciado](docs/business/EXERCISE_SPECS.md)). Entregables: modelo con overfitting < 5 puntos, app en Streamlit, informe y presentaciones.
@@ -50,6 +50,8 @@ app/                app de Streamlit: main.py (interfaz) y prediccion.py (lógic
 tests/              tests de la app (pytest)
 final.ipynb         los notebooks 00 → 06 juntos y ejecutados, con índice
 ```
+
+**Presentación:** abrir el [HTML completo](docs/presentaciones/presentacion-eucalyptus.html) en el navegador; `N` muestra las notas. La intervención de Fabiana (diapositivas 1–6 y 17) incluye un guion de unos 5 minutos y los gráficos de regresión logística, según el [reparto de 20 minutos](docs/presentaciones/reparto-presentacion.md). Su [explicación ampliada](docs/presentaciones/modelos/regresion-logistica.html) sirve de apoyo para preguntas.
 
 ## Empezar
 ```bash
