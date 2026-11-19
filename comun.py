@@ -77,7 +77,7 @@ GAP_MAXIMO = 5
 
 
 # ---------------------------------------------------------------------------
-# Datos originales (00_general y 01_eda)
+# Datos originales (01_eda)
 # ---------------------------------------------------------------------------
 def cargar_openml():
     """Descarga Eucalyptus (OpenML 188) y devuelve X, y. Se guarda en caché local."""
