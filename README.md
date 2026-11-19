@@ -29,7 +29,7 @@ La regresión logística supera al Dummy, pero todavía no es candidata al model
 ## Notebooks (en orden)
 | Notebook | Qué hace | Responsable |
 |---|---|---|
-| `00_general` | Problema, métrica y split | equipo |
+| `00_general` | Definición del problema, la métrica y el baseline | equipo |
 | `01_eda` | EDA, limpieza común y datos en `data/` ([informe](docs/informe-eda.md)) | @ManonChab |
 | [`02_regresion_logistica`](02_regresion_logistica.ipynb) | Pipeline, CV, evaluación, interpretación y exportación | @fabileoruf |
 | `03_arbol_decision` | Modelo de árbol de decisión | @jcxk |
@@ -51,7 +51,7 @@ tests/              tests de la app (pytest)
 final.ipynb         los notebooks 00 → 06 juntos y ejecutados, con índice
 ```
 
-**Presentación:** publicada en [GitHub Pages](https://ia-p1-bcn.github.io/g3-Clasificacion-Multiclase/) (solo la presentación; se actualiza sola al mergear cambios en ella), o abrir el [HTML completo](docs/presentaciones/presentacion-eucalyptus.html) en el navegador; `N` muestra las notas. La intervención de Fabiana (diapositivas 1–6 y 17) incluye un guion de unos 5 minutos y los gráficos de regresión logística, según el [reparto de 20 minutos](docs/presentaciones/reparto-presentacion.md). Su [explicación ampliada](docs/presentaciones/modelos/regresion-logistica.html) sirve de apoyo para preguntas.
+**Presentación:** publicada en [GitHub Pages](https://ia-p1-bcn.github.io/g3-Clasificacion-Multiclase/) (solo la presentación; se actualiza sola al mergear cambios en ella), o abrir el [HTML completo](docs/presentaciones/presentacion-eucalyptus.html) en el navegador; `N` muestra las notas. La intervención de Fabiana (diapositivas 1–6) incluye un guion de unos 5 minutos y los gráficos de regresión logística, según el [reparto de 20 minutos](docs/presentaciones/reparto-presentacion.md). Su [explicación ampliada](docs/presentaciones/modelos/regresion-logistica.html) sirve de apoyo para preguntas.
 
 ## Empezar
 ```bash
