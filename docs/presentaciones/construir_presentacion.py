@@ -81,11 +81,6 @@ PONENTES = {
         ["edagraficos", "edadecisiones", "datos", "variables", "validacion", "modelos", "trabajo"],
         "Manon",
     ),
-    "modelo-logistica": "Fabiana",
-    "modelo-arbol": "Jc",
-    "modelo-arbol-codigo": "Jc",
-    "modelo-svm": "Elena",
-    "modelo-knn": "Manon",
     **dict.fromkeys(["comparacion", "ganador", "test", "errores", "final", "gracias"], "Elena"),
 }
 
